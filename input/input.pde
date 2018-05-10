@@ -48,7 +48,7 @@ void setup() {
     }catch(Exception e){
     }
 
-    this.settingsWindowSetted = false;
+                   this.settingsWindowSetted = false;
 }      
 
 void draw() {
