@@ -86,6 +86,7 @@ float[] createSpectrum(float[] inp) {
             spectr[i] = inp[count];
             count++;
         }
+        //print("ciao" + i + "\n" );
     }
 
     return spectr;
