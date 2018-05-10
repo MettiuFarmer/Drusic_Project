@@ -71,6 +71,8 @@ void draw() {
         this.sw.setWindowComponents();
         this.settingsWindowSetted = true;
     }
+    
+    //print("sensp:" + this.sett.getSensivityp() + "  senss:" + this.sett.getSensivitys() + "\n");
 }
 
 float[] createSpectrum(float[] inp) {

@@ -1,7 +1,9 @@
 class Animazioni{
   
   Circle[] stars=new Circle[100];
+  Circle[] stars2=new Circle[100];
   Circle[] circles=new Circle[5];
+  Circle[] circles2=new Circle[5];
   
   public void muovi(float x, float y, float x1, float y1){}
   
@@ -88,6 +90,8 @@ class Animazioni{
     
     float[] media=new float[5];
     
+    if(coloDisegno==1){
+      
     for(int i=0; i<5; i++){
       media[i]=0;
       for(int k=(2045/5)*i; k<(2045/5)*i+409; k++){
@@ -102,20 +106,38 @@ class Animazioni{
       line(this.circles[i].getX(), this.circles[i].getY(), this.circles[i+1].getX(), this.circles[i+1].getY());
     }
     
+    }else{
+      
+      for(int i=0; i<5; i++){
+      media[i]=0;
+      for(int k=(2045/5)*i; k<(2045/5)*i+409; k++){
+        media[i]=media[i]+a[k];
+      }
+      media[i]=media[i]/500;
+      this.circles2[i].setY((int)((height/10)*(9)-media[i]));
+      this.circles2[i].show(s, coloDisegno);
+    }
+    
+    for(int i=0; i<4; i++){
+      line(this.circles2[i].getX(), this.circles2[i].getY(), this.circles2[i+1].getX(), this.circles2[i+1].getY());
+    }
+    
+    }
+    
   }
   
   public void saturn(float[] a, Settings s, int coloDisegno){
     
     a=adapt(a, s, coloDisegno);
     
+    if(coloDisegno==1){
+    
       for(int i=0; i<100; i++){
        
         stroke(s.getColore(coloDisegno)[0], s.getColore(coloDisegno)[1], s.getColore(coloDisegno)[2]);
-        strokeWeight(1);
-      
-        List b = Arrays.asList(a);
-
-        this.stars[i].alpha(a[100]);
+        strokeWeight(2);
+     
+        this.stars[i].alpha(a[a.length-1]);
      
         fill(s.colorePrincipale[0], s.colorePrincipale[1], s.colorePrincipale[2]);
         
@@ -130,6 +152,31 @@ class Animazioni{
         
         
       }  
+      
+    }else{
+     
+      for(int i=0; i<100; i++){
+       
+        stroke(s.getColore(coloDisegno)[0], s.getColore(coloDisegno)[1], s.getColore(coloDisegno)[2]);
+        strokeWeight(2);
+      
+        this.stars2[i].alpha(a[a.length-1]);
+     
+        fill(s.getColore(coloDisegno)[0], s.getColore(coloDisegno)[1], s.getColore(coloDisegno)[2]);
+        
+        this.stars[i].setX((int)(this.stars2[i].getR()*(cos(this.stars2[i].getAlpha())))+width/2);
+        this.stars[i].setY((int)(this.stars2[i].getR()*(sin(this.stars2[i].getAlpha())))+height/2);
+        
+        if((int)random(a[width/8])>100){
+          ellipse((this.stars2[i].getX()), (this.stars2[i].getY()), 6, 6);
+        }else{
+          ellipse((this.stars2[i].getX()), (this.stars2[i].getY()), 3, 3);
+        }
+        
+        
+      } 
+      
+    }
   }
   
   void magicSphere(float[] a, Settings s, int coloDisegno){
@@ -228,6 +275,8 @@ class Animazioni{
         delay(1);
       }
     }
+    
+    this.stars2=stars;
    
   }
   
@@ -240,6 +289,8 @@ class Animazioni{
         delay(1);
       }
     }
+    
+    this.circles2=circles;
   }
   
 }
