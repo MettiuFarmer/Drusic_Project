@@ -23,13 +23,13 @@ public class Settings implements Serializable {
 
         // -> primary draw variables
         this.colorPrimary = new int[3];
-        this.sensitivityPrimary = 125;
-        this.modelPrimary = 1;
+        this.sensitivityPrimary = 50;
+        this.modelPrimary = 2;
 
         // -> secondary draw variables
         this.colorSecondary = new int[3];
         this.sensitivitySecondary = 125;
-        this.modelSecondary = 0;
+        this.modelSecondary = 3;
     }
 
     // Method to change an environment color

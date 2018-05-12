@@ -3,7 +3,7 @@ public class OndaAnimation {
     // Empty class initializer
     public OndaAnimation() {}
 
-    public void drawOnda(int whatDraw) {
+    public void draw(int whatDraw) {
         int spectrumLength = spectrum.length;
 
         float []adaptedSpectrum = animationHandler.adaptSpectrum(whatDraw);

@@ -1,10 +1,12 @@
 public class AnimationHandler {
 
     OndaAnimation onda;
+    SaturnAnimation saturn;
 
     public AnimationHandler() {
         // Initialize all the animations
         onda = new OndaAnimation();
+        saturn = new SaturnAnimation();
     }
 
     public void routeAnimation() {
@@ -13,11 +15,11 @@ public class AnimationHandler {
                 break;
             
             case 1:
-                onda.drawOnda(1);
+                onda.draw(1);
                 break;
             
             case 2:
-                // saturn
+                saturn.draw(1);
                 break;
             
             case 3:
@@ -37,11 +39,11 @@ public class AnimationHandler {
                 break;
             
             case 1:
-                // onda
+                onda.draw(2);
                 break;
             
             case 2:
-                // saturn
+                saturn.draw(2);
                 break;
             
             case 3:
@@ -63,6 +65,9 @@ public class AnimationHandler {
 
         if (whatDraw == 1) {
             for (int i = 0; i < spectrum.length; i++) {
+                if (max(spectrum) == 0) {
+                    break;
+                }
                 adapted[i] = spectrum[i] * settings.getSensitivityPrimary() * pow(i + 1, 1.2);
                 medium = medium + adapted[i];
                 map(adapted[i],
@@ -73,6 +78,9 @@ public class AnimationHandler {
             adapted[spectrum.length] = medium;
         } else {
             for (int i = 0; i < spectrum.length; i++) {
+                if (max(spectrum) == 0) {
+                    break;
+                }
                 adapted[i] = spectrum[i] * settings.getSensitivitySecondary() * pow(i + 1, 1.2);
                 medium = medium + adapted[i];
                 map(adapted[i],
