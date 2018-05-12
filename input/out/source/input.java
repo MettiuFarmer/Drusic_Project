@@ -44,8 +44,8 @@ AnimationHandler animationHandler;
 
 public void setup() {
     // Processing settings
-    //fullScreen(P3D);
     
+    //size(1000, 800);
     
 
     // Variables initialization
@@ -97,11 +97,15 @@ public class AnimationHandler {
 
     OndaAnimation onda;
     SaturnAnimation saturn;
+    HyperlineAnimation hyperLine;
+    MagicsphereAnimation magicSphere;
 
     public AnimationHandler() {
         // Initialize all the animations
         onda = new OndaAnimation();
         saturn = new SaturnAnimation();
+        hyperLine = new HyperlineAnimation();
+        magicSphere = new MagicsphereAnimation();
     }
 
     public void routeAnimation() {
@@ -118,11 +122,11 @@ public class AnimationHandler {
                 break;
             
             case 3:
-                // hyper line
+                hyperLine.draw(1);
                 break;
             
             case 4:
-                // magic sphere
+                magicSphere.draw(1);
                 break;
             
             default:
@@ -142,11 +146,11 @@ public class AnimationHandler {
                 break;
             
             case 3:
-                // hyper line
+                hyperLine.draw(2);
                 break;
             
             case 4:
-                // magic sphere
+                magicSphere.draw(2);
                 break;
             
             default:
@@ -284,6 +288,110 @@ class Circle {
 
     public void setAlpha(float a) {
         this.alpha = a;
+    }
+
+}
+public class HyperlineAnimation {
+
+    private Circle []circlesForPrimary;
+    private Circle []circlesForSecondary;
+
+    public HyperlineAnimation () {
+        circlesForPrimary = new Circle[5];
+        circlesForSecondary = new Circle[5];
+
+        for (int i = 0; i < 5; i++) {
+            this.circlesForPrimary[i] = new Circle();
+            this.circlesForPrimary[i].setX((i + 1) * width / 6);
+            this.circlesForPrimary[i].setY(height / 2);
+        }
+
+        for (int i = 0; i < 5; i++) {
+            this.circlesForSecondary[i] = new Circle();
+            this.circlesForSecondary[i].setX((i + 1) * width / 6);
+            this.circlesForSecondary[i].setY(height / 2);
+        }
+    }
+
+    public void draw(int whatDraw) {
+        float []adaptedSpectrum = animationHandler.adaptSpectrum(whatDraw);
+        float []medium = new float[5];
+
+        if (whatDraw == 1) {
+            for (int i = 0; i < 5; i++) {
+                medium[i] = 0;
+                for (int j = (2045 / 5) * i; j < (2045 / 5) * i + 409; j++) {
+                    medium[i] += adaptedSpectrum[j];
+                }
+                medium[i] /= 500;
+                this.circlesForPrimary[i].setY((int) ((height / 10) * 9 - medium[i]));
+                this.circlesForPrimary[i].show(whatDraw);
+            }
+
+            for (int i = 0; i < 4; i++) {
+                line(this.circlesForPrimary[i].getX(),
+                     this.circlesForPrimary[i].getY(),
+                     this.circlesForPrimary[i + 1].getX(),
+                     this.circlesForPrimary[i + 1].getY());
+            }
+        } else {
+            for (int i = 0; i < 5; i++) {
+                medium[i] = 0;
+                for (int j = (2045 / 5) * i; j < (2045 / 5) * i + 409; j++) {
+                    medium[i] += adaptedSpectrum[j];
+                }
+                medium[i] /= 500;
+                this.circlesForSecondary[i].setY((int) ((height / 10) * 9 - medium[i]));
+                this.circlesForSecondary[i].show(whatDraw);
+            }
+
+            for (int i = 0; i < 4; i++) {
+                line(this.circlesForSecondary[i].getX(),
+                     this.circlesForSecondary[i].getY(),
+                     this.circlesForSecondary[i + 1].getX(),
+                     this.circlesForSecondary[i + 1].getY());
+            }
+        }
+    }
+
+}
+public class MagicsphereAnimation {
+
+    // Empty class initializer
+    public MagicsphereAnimation() {}
+
+    public void draw(int whatDraw) {
+        float []adaptedSpectrum = animationHandler.adaptSpectrum(whatDraw);
+
+        if (max(adaptedSpectrum) != 0) {
+            noFill();
+
+            float magic = 0;
+            for (int i = 0; i < 500; i++) {
+                magic += adaptedSpectrum[i + 250];
+            }
+
+            stroke(settings.getColor(whatDraw)[0],
+                settings.getColor(whatDraw)[1],
+                settings.getColor(whatDraw)[2]);
+            strokeWeight(1);
+
+            pushMatrix();
+            /**/
+                translate(width / 2, height / 2);
+                rotateX(magic * 0.0191f);
+                rotateY(magic * 0.0193f);
+                rotateZ(magic * 0.0192f);
+                map(magic,
+                    min(adaptedSpectrum), max(adaptedSpectrum),
+                    19, height / 2);
+                sphereDetail((int) 11);
+                sphere((int) (magic / 20));
+            /**/
+            popMatrix();
+
+            delay(5);
+        }
     }
 
 }
@@ -446,13 +554,13 @@ public class Settings implements Serializable {
 
         // -> primary draw variables
         this.colorPrimary = new int[3];
-        this.sensitivityPrimary = 50;
-        this.modelPrimary = 2;
+        this.sensitivityPrimary = 10;
+        this.modelPrimary = 4;
 
         // -> secondary draw variables
         this.colorSecondary = new int[3];
-        this.sensitivitySecondary = 25;
-        this.modelSecondary = 2;
+        this.sensitivitySecondary = 40;
+        this.modelSecondary = 4;
     }
 
     // Method to change an environment color
@@ -529,7 +637,7 @@ public class Settings implements Serializable {
     }
 
 }
-  public void settings() {  size(1000, 800);  smooth(); }
+  public void settings() {  fullScreen(P3D);  smooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "input" };
     if (passedArgs != null) {

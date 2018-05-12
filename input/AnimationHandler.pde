@@ -2,11 +2,15 @@ public class AnimationHandler {
 
     OndaAnimation onda;
     SaturnAnimation saturn;
+    HyperlineAnimation hyperLine;
+    MagicsphereAnimation magicSphere;
 
     public AnimationHandler() {
         // Initialize all the animations
         onda = new OndaAnimation();
         saturn = new SaturnAnimation();
+        hyperLine = new HyperlineAnimation();
+        magicSphere = new MagicsphereAnimation();
     }
 
     public void routeAnimation() {
@@ -23,11 +27,11 @@ public class AnimationHandler {
                 break;
             
             case 3:
-                // hyper line
+                hyperLine.draw(1);
                 break;
             
             case 4:
-                // magic sphere
+                magicSphere.draw(1);
                 break;
             
             default:
@@ -47,11 +51,11 @@ public class AnimationHandler {
                 break;
             
             case 3:
-                // hyper line
+                hyperLine.draw(2);
                 break;
             
             case 4:
-                // magic sphere
+                magicSphere.draw(2);
                 break;
             
             default:

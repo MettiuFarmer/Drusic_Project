@@ -20,8 +20,8 @@ AnimationHandler animationHandler;
 
 void setup() {
     // Processing settings
-    //fullScreen(P3D);
-    size(1000, 800);
+    fullScreen(P3D);
+    //size(1000, 800);
     smooth();
 
     // Variables initialization
