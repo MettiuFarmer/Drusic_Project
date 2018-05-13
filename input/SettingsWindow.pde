@@ -26,6 +26,58 @@ public class SettingsWindow {
             colorPickerSecondary = new CustomColorPicker(width / 2 + 425 - 285 - 40,
                                                          height / 2 - 315 + 120,
                                                          rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
+
+            this.cp5.addSlider("sensPrimary")
+                .setLabel("Sensibilita\'")
+                .setRange(0, 350)
+                .setValue(settings.getSensitivityPrimary())
+                .setPosition(45, 400)
+                .setSize(200, 20);
+            
+            this.cp5.addSlider("sensSecondary")
+                .setLabel("Sensibilita\'")
+                .setRange(0, 350)
+                .setValue(settings.getSensitivityPrimary())
+                .setPosition(525, 400)
+                .setSize(200, 20);
+            
+            this.cp5.addButton("changeAnimationPrimary")
+                .setLabel("Cambia Animazione")
+                .setPosition(45, 450)
+                .setSize(100, 20)
+                .activateBy(ControlP5.RELEASE)
+                .setValue(settings.getModelPrimary())
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        int animationNumberPrimary = (int) callbackEvent.getController().getValue();
+                        animationNumberPrimary++;
+
+                        if (animationNumberPrimary > animationHandler.numberOfAnimations) {
+                            animationNumberPrimary = 0;
+                        }
+
+                        callbackEvent.getController().setValue(animationNumberPrimary);
+                    }
+                });
+            
+            this.cp5.addButton("changeAnimationSecondary")
+                .setLabel("Cambia Animazione")
+                .setPosition(525, 450)
+                .setSize(100, 20)
+                .activateBy(ControlP5.RELEASE)
+                .setValue(settings.getModelSecondary())
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        int animationNumberSecondary = (int) callbackEvent.getController().getValue();
+                        animationNumberSecondary++;
+
+                        if (animationNumberSecondary > animationHandler.numberOfAnimations) {
+                            animationNumberSecondary = 0;
+                        }
+
+                        callbackEvent.getController().setValue(animationNumberSecondary);
+                    }
+                });
         /**/
         pg.endDraw();
     }
@@ -78,6 +130,8 @@ public class SettingsWindow {
         /**/
         pg.endDraw();
         updateColors();
+        updateSensibilities();
+        updateAnimationNumbers();
     }
 
     private void updateColors() {
@@ -90,6 +144,16 @@ public class SettingsWindow {
                                         saturation(colorPickerSecondary.activeColor),
                                         brightness(colorPickerSecondary.activeColor));
         settings.changeColor(secondaryColor[0], secondaryColor[1], secondaryColor[2], 2);
+    }
+
+    private void updateSensibilities() {
+        settings.setSensitivityPrimary(this.cp5.getController("sensPrimary").getValue());
+        settings.setSensitivitySecondary(this.cp5.getController("sensSecondary").getValue());
+    }
+
+    private void updateAnimationNumbers() {
+        settings.setModelPrimary((int) this.cp5.getController("changeAnimationPrimary").getValue());
+        settings.setModelSecondary((int) this.cp5.getController("changeAnimationSecondary").getValue());
     }
 
 }

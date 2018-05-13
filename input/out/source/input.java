@@ -222,17 +222,20 @@ public void keyPressed() {
 }
 public class AnimationHandler {
 
-    OndaAnimation onda;
-    SaturnAnimation saturn;
-    HyperlineAnimation hyperLine;
-    MagicsphereAnimation magicSphere;
+    private OndaAnimation onda;
+    private SaturnAnimation saturn;
+    private HyperlineAnimation hyperLine;
+    private MagicsphereAnimation magicSphere;
+    public int numberOfAnimations;
 
     public AnimationHandler() {
         // Initialize all the animations
-        onda = new OndaAnimation();
-        saturn = new SaturnAnimation();
-        hyperLine = new HyperlineAnimation();
-        magicSphere = new MagicsphereAnimation();
+        this.onda = new OndaAnimation();
+        this.saturn = new SaturnAnimation();
+        this.hyperLine = new HyperlineAnimation();
+        this.magicSphere = new MagicsphereAnimation();
+
+        this.numberOfAnimations = 4;
     }
 
     public void routeAnimation() {
@@ -241,19 +244,19 @@ public class AnimationHandler {
                 break;
             
             case 1:
-                onda.draw(1);
+                this.onda.draw(1);
                 break;
             
             case 2:
-                saturn.draw(1);
+                this.saturn.draw(1);
                 break;
             
             case 3:
-                hyperLine.draw(1);
+                this.hyperLine.draw(1);
                 break;
             
             case 4:
-                magicSphere.draw(1);
+                this.magicSphere.draw(1);
                 break;
             
             default:
@@ -265,19 +268,19 @@ public class AnimationHandler {
                 break;
             
             case 1:
-                onda.draw(2);
+                this.onda.draw(2);
                 break;
             
             case 2:
-                saturn.draw(2);
+                this.saturn.draw(2);
                 break;
             
             case 3:
-                hyperLine.draw(2);
+                this.hyperLine.draw(2);
                 break;
             
             case 4:
-                magicSphere.draw(2);
+                this.magicSphere.draw(2);
                 break;
             
             default:
@@ -443,12 +446,11 @@ class CustomColorPicker {
         ColorPickerX = pickx;
         ColorPickerY = picky;
         activeColor = startColor;
-        print(PApplet.parseInt(hue(activeColor)), saturation(activeColor)*255, brightness(activeColor)*255);
-        print("\n");
-        LineY = ColorPickerY + PApplet.parseInt(hue(activeColor)); //set initial Line position
+        /*
+        LineY = ColorPickerY + int(hue(activeColor)); //set initial Line position
         CrossX = ColorPickerX + saturation(activeColor)*255; //set initial Line position
         CrossY = ColorPickerY + brightness(activeColor)*255; //set initial Line position
-        
+        */
         LineY = ColorPickerY + PApplet.parseInt(hue(activeColor) * 40.58f);
         CrossX = ColorPickerX + (saturation(activeColor) * 255);
         CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
@@ -805,12 +807,12 @@ public class Settings implements Serializable {
     // -> primary draw variables
     int []colorPrimary;
     int modelPrimary;
-    int sensitivityPrimary;
+    float sensitivityPrimary;
     
     // -> secondary draw variables
     int []colorSecondary;
     int modelSecondary;
-    int sensitivitySecondary;
+    float sensitivitySecondary;
 
     public Settings() {
         // Initialize class variables:
@@ -886,6 +888,14 @@ public class Settings implements Serializable {
         }
     }
 
+    public void setModelPrimary(int animationNumber) {
+        this.modelPrimary = animationNumber;
+    }
+
+    public void setModelSecondary(int animationNumber) {
+        this.modelSecondary = animationNumber;
+    }
+
     public int getModelPrimary() {
         return this.modelPrimary;
     }
@@ -894,11 +904,19 @@ public class Settings implements Serializable {
         return this.modelSecondary;
     }
 
-    public int getSensitivityPrimary() {
+    public void setSensitivityPrimary(float sensValue) {
+        this.sensitivityPrimary = sensValue;
+    }
+    
+    public void setSensitivitySecondary(float sensValue) {
+        this.sensitivitySecondary = sensValue;
+    }
+
+    public float getSensitivityPrimary() {
         return this.sensitivityPrimary;
     }
     
-    public int getSensitivitySecondary() {
+    public float getSensitivitySecondary() {
         return this.sensitivitySecondary;
     }
 
@@ -931,6 +949,58 @@ public class SettingsWindow {
             colorPickerSecondary = new CustomColorPicker(width / 2 + 425 - 285 - 40,
                                                          height / 2 - 315 + 120,
                                                          rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
+
+            this.cp5.addSlider("sensPrimary")
+                .setLabel("Sensibilita\'")
+                .setRange(0, 350)
+                .setValue(settings.getSensitivityPrimary())
+                .setPosition(45, 400)
+                .setSize(200, 20);
+            
+            this.cp5.addSlider("sensSecondary")
+                .setLabel("Sensibilita\'")
+                .setRange(0, 350)
+                .setValue(settings.getSensitivityPrimary())
+                .setPosition(525, 400)
+                .setSize(200, 20);
+            
+            this.cp5.addButton("changeAnimationPrimary")
+                .setLabel("Cambia Animazione")
+                .setPosition(45, 450)
+                .setSize(100, 20)
+                .activateBy(ControlP5.RELEASE)
+                .setValue(settings.getModelPrimary())
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        int animationNumberPrimary = (int) callbackEvent.getController().getValue();
+                        animationNumberPrimary++;
+
+                        if (animationNumberPrimary > animationHandler.numberOfAnimations) {
+                            animationNumberPrimary = 0;
+                        }
+
+                        callbackEvent.getController().setValue(animationNumberPrimary);
+                    }
+                });
+            
+            this.cp5.addButton("changeAnimationSecondary")
+                .setLabel("Cambia Animazione")
+                .setPosition(525, 450)
+                .setSize(100, 20)
+                .activateBy(ControlP5.RELEASE)
+                .setValue(settings.getModelSecondary())
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        int animationNumberSecondary = (int) callbackEvent.getController().getValue();
+                        animationNumberSecondary++;
+
+                        if (animationNumberSecondary > animationHandler.numberOfAnimations) {
+                            animationNumberSecondary = 0;
+                        }
+
+                        callbackEvent.getController().setValue(animationNumberSecondary);
+                    }
+                });
         /**/
         pg.endDraw();
     }
@@ -983,6 +1053,8 @@ public class SettingsWindow {
         /**/
         pg.endDraw();
         updateColors();
+        updateSensibilities();
+        updateAnimationNumbers();
     }
 
     private void updateColors() {
@@ -995,6 +1067,16 @@ public class SettingsWindow {
                                         saturation(colorPickerSecondary.activeColor),
                                         brightness(colorPickerSecondary.activeColor));
         settings.changeColor(secondaryColor[0], secondaryColor[1], secondaryColor[2], 2);
+    }
+
+    private void updateSensibilities() {
+        settings.setSensitivityPrimary(this.cp5.getController("sensPrimary").getValue());
+        settings.setSensitivitySecondary(this.cp5.getController("sensSecondary").getValue());
+    }
+
+    private void updateAnimationNumbers() {
+        settings.setModelPrimary((int) this.cp5.getController("changeAnimationPrimary").getValue());
+        settings.setModelSecondary((int) this.cp5.getController("changeAnimationSecondary").getValue());
     }
 
 }

@@ -1,16 +1,19 @@
 public class AnimationHandler {
 
-    OndaAnimation onda;
-    SaturnAnimation saturn;
-    HyperlineAnimation hyperLine;
-    MagicsphereAnimation magicSphere;
+    private OndaAnimation onda;
+    private SaturnAnimation saturn;
+    private HyperlineAnimation hyperLine;
+    private MagicsphereAnimation magicSphere;
+    public int numberOfAnimations;
 
     public AnimationHandler() {
         // Initialize all the animations
-        onda = new OndaAnimation();
-        saturn = new SaturnAnimation();
-        hyperLine = new HyperlineAnimation();
-        magicSphere = new MagicsphereAnimation();
+        this.onda = new OndaAnimation();
+        this.saturn = new SaturnAnimation();
+        this.hyperLine = new HyperlineAnimation();
+        this.magicSphere = new MagicsphereAnimation();
+
+        this.numberOfAnimations = 4;
     }
 
     public void routeAnimation() {
@@ -19,19 +22,19 @@ public class AnimationHandler {
                 break;
             
             case 1:
-                onda.draw(1);
+                this.onda.draw(1);
                 break;
             
             case 2:
-                saturn.draw(1);
+                this.saturn.draw(1);
                 break;
             
             case 3:
-                hyperLine.draw(1);
+                this.hyperLine.draw(1);
                 break;
             
             case 4:
-                magicSphere.draw(1);
+                this.magicSphere.draw(1);
                 break;
             
             default:
@@ -43,19 +46,19 @@ public class AnimationHandler {
                 break;
             
             case 1:
-                onda.draw(2);
+                this.onda.draw(2);
                 break;
             
             case 2:
-                saturn.draw(2);
+                this.saturn.draw(2);
                 break;
             
             case 3:
-                hyperLine.draw(2);
+                this.hyperLine.draw(2);
                 break;
             
             case 4:
-                magicSphere.draw(2);
+                this.magicSphere.draw(2);
                 break;
             
             default:

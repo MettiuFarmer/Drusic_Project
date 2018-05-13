@@ -8,12 +8,12 @@ public class Settings implements Serializable {
     // -> primary draw variables
     int []colorPrimary;
     int modelPrimary;
-    int sensitivityPrimary;
+    float sensitivityPrimary;
     
     // -> secondary draw variables
     int []colorSecondary;
     int modelSecondary;
-    int sensitivitySecondary;
+    float sensitivitySecondary;
 
     public Settings() {
         // Initialize class variables:
@@ -89,6 +89,14 @@ public class Settings implements Serializable {
         }
     }
 
+    public void setModelPrimary(int animationNumber) {
+        this.modelPrimary = animationNumber;
+    }
+
+    public void setModelSecondary(int animationNumber) {
+        this.modelSecondary = animationNumber;
+    }
+
     public int getModelPrimary() {
         return this.modelPrimary;
     }
@@ -97,11 +105,19 @@ public class Settings implements Serializable {
         return this.modelSecondary;
     }
 
-    public int getSensitivityPrimary() {
+    public void setSensitivityPrimary(float sensValue) {
+        this.sensitivityPrimary = sensValue;
+    }
+    
+    public void setSensitivitySecondary(float sensValue) {
+        this.sensitivitySecondary = sensValue;
+    }
+
+    public float getSensitivityPrimary() {
         return this.sensitivityPrimary;
     }
     
-    public int getSensitivitySecondary() {
+    public float getSensitivitySecondary() {
         return this.sensitivitySecondary;
     }
 
