@@ -15,16 +15,22 @@ class CustomColorPicker {
         isDraggingLine = false, //check if mouse is dragging the line
         ShowColorPicker = true; //toggle color picker visibility (even = not visible, odd = visible) 
 
-    color 
+    color
         activeColor = color(PI, 0.5, 0.5), //contain the selected color  
         interfaceColor = color(2*PI, 1.0, 1.0); //change as you want               <------------------------------------------- CHANGE
 
-    CustomColorPicker(int pickx, int picky) {
+    CustomColorPicker(int pickx, int picky, color startColor) {
         ColorPickerX = pickx;
         ColorPickerY = picky;
+        activeColor = startColor;
+        /*
         LineY = ColorPickerY + int(hue(activeColor)); //set initial Line position
         CrossX = ColorPickerX + saturation(activeColor)*255; //set initial Line position
         CrossY = ColorPickerY + brightness(activeColor)*255; //set initial Line position
+        */
+        LineY = ColorPickerY + int(hue(activeColor) * 40.58);
+        CrossX = ColorPickerX + (saturation(activeColor) * 255);
+        CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
     }
 
     void update() {
@@ -33,12 +39,12 @@ class CustomColorPicker {
     }
 
     void display() {
-        drawColorSelector(); 
+        //drawColorSelector(); 
         drawColorPicker();
         drawLine();
         drawCross();
-        drawActiveColor();
-        drawValues();
+        //drawActiveColor();
+        //drawValues();
         //drawOK();
     }
 

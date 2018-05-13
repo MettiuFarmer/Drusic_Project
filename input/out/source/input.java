@@ -60,8 +60,8 @@ public void setup() {
     settingsWindow = new SettingsWindow();
 
     // Defaults initialization
-    settings.changeColor(255, 0, 0, 1);
-    settings.changeColor(0, 255, 0, 2);
+    settings.changeColor(255, 255, 255, 1);
+    settings.changeColor(255, 153, 0, 2);
     settings.changeColor(0, 0, 0, 3);
     settingsWindow.initializeWindowComponents();
 }
@@ -157,6 +157,61 @@ public int rgbToHsb(int redColor, int greenColor, int blueColor, int alphaColor)
         h = h * TWO_PI;
     }
     return color(h, s, b_, map(alphaColor, 0, 255, 0, 1));
+}
+
+public int[] hsbToRgb(float hRadians, float s, float v) {
+    float h = map(hRadians, 0, TWO_PI, 0, 1);
+    
+    float r, g, b, i, f, p, q, t;
+    r = 0;
+    g = 0;
+    b = 0;
+
+    i = floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+
+    switch (PApplet.parseInt(i % 6)) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+        
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+        
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+        
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+        
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+        
+        case 5:
+            r = v;
+            g = p;
+            b = q;
+            break;
+    }
+
+    return new int[]{Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)};
 }
 
 public void keyPressed() {
@@ -380,16 +435,23 @@ class CustomColorPicker {
         isDraggingLine = false, //check if mouse is dragging the line
         ShowColorPicker = true; //toggle color picker visibility (even = not visible, odd = visible) 
 
-    int 
+    int
         activeColor = color(PI, 0.5f, 0.5f), //contain the selected color  
         interfaceColor = color(2*PI, 1.0f, 1.0f); //change as you want               <------------------------------------------- CHANGE
 
-    CustomColorPicker(int pickx, int picky) {
+    CustomColorPicker(int pickx, int picky, int startColor) {
         ColorPickerX = pickx;
         ColorPickerY = picky;
+        activeColor = startColor;
+        print(PApplet.parseInt(hue(activeColor)), saturation(activeColor)*255, brightness(activeColor)*255);
+        print("\n");
         LineY = ColorPickerY + PApplet.parseInt(hue(activeColor)); //set initial Line position
         CrossX = ColorPickerX + saturation(activeColor)*255; //set initial Line position
         CrossY = ColorPickerY + brightness(activeColor)*255; //set initial Line position
+        
+        LineY = ColorPickerY + PApplet.parseInt(hue(activeColor) * 40.58f);
+        CrossX = ColorPickerX + (saturation(activeColor) * 255);
+        CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
     }
 
     public void update() {
@@ -398,12 +460,12 @@ class CustomColorPicker {
     }
 
     public void display() {
-        drawColorSelector(); 
+        //drawColorSelector(); 
         drawColorPicker();
         drawLine();
         drawCross();
-        drawActiveColor();
-        drawValues();
+        //drawActiveColor();
+        //drawValues();
         //drawOK();
     }
 
@@ -758,12 +820,12 @@ public class Settings implements Serializable {
 
         // -> primary draw variables
         this.colorPrimary = new int[3];
-        this.sensitivityPrimary = 80;
-        this.modelPrimary = 4;
+        this.sensitivityPrimary = 4;
+        this.modelPrimary = 2;
 
         // -> secondary draw variables
         this.colorSecondary = new int[3];
-        this.sensitivitySecondary = 30;
+        this.sensitivitySecondary = 8;
         this.modelSecondary = 4;
     }
 
@@ -847,12 +909,14 @@ public class SettingsWindow {
     private PGraphics pg;
     private CustomColorPicker colorPickerPrimary;
     private CustomColorPicker colorPickerSecondary;
+    PFont drusicFont;
     private boolean settingsWindowVisible;
 
     public SettingsWindow() {
         this.cp5 = new ControlP5(myPApplet);
-        this.pg = createGraphics(800, 600);
+        this.pg = createGraphics(850, 650);
         this.settingsWindowVisible = false;
+        this.drusicFont = loadFont("LandslideSample-48.vlw");
         this.updateMouseStatus();
     }
 
@@ -860,14 +924,13 @@ public class SettingsWindow {
         this.cp5.setVisible(this.isVisibile());
         pg.beginDraw();
         /**/
-            // this.cp5.addColorPicker("picker")
-            //     .setPosition(60, 100)
-            //     .setColorValue(color(255, 128, 0, 128));
-            
-            // colorPickerPrimary = new CustomColorPicker(width / 2 - 400,
-            //                                            height / 2 - 300);
-            
-            colorPickerPrimary = new CustomColorPicker(10, 10);
+            colorPickerPrimary = new CustomColorPicker(width / 2 - 425 + 45,
+                                                       height / 2 - 315 + 120,
+                                                       rgbToHsb(settings.getColor(1)[0], settings.getColor(1)[1], settings.getColor(1)[2], 255));
+
+            colorPickerSecondary = new CustomColorPicker(width / 2 + 425 - 285 - 40,
+                                                         height / 2 - 315 + 120,
+                                                         rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
         /**/
         pg.endDraw();
     }
@@ -894,20 +957,44 @@ public class SettingsWindow {
         this.cp5.setVisible(this.isVisibile());
         pg.beginDraw();
         /**/
-            this.cp5.setGraphics(pg, width / 2 - 400, height / 2 - 300);
+            this.cp5.setGraphics(pg, width / 2 - 425, height / 2 - 325);
             noFill();
             
-            this.pg.background(rgbToHsb(181, 181, 181, 60));
+            //this.pg.background(rgbToHsb(181, 181, 181, 60));
+            this.pg.background(rgbToHsb(117, 117, 117, 34));
             
-            // this.pg.stroke(settings.getColor(1)[0],
-            //                settings.getColor(1)[1],
-            //                settings.getColor(1)[2]);
-            // rect(width / 2 - 400, height / 2 - 300, 800, 600);
+            fill(rgbToHsb(191, 191, 191, 100));
+            stroke(rgbToHsb(settings.getColor(1)[0],
+                                    settings.getColor(1)[1],
+                                    settings.getColor(1)[2], 255));
+            rect(width / 2 - 425, height / 2 - 325, 850, 650);
+
+            pg.textFont(this.drusicFont);
+            pg.text("Drusic", 12, 60);
+
+            pg.textSize(20);
+            pg.text("Disegno Principale", 32 + 25, 110);
+            pg.text("Disegno Secondario", 32 + 425 + 80, 110);
             
             colorPickerPrimary.display();
             colorPickerPrimary.update();
+            colorPickerSecondary.display();
+            colorPickerSecondary.update();
         /**/
         pg.endDraw();
+        updateColors();
+    }
+
+    private void updateColors() {
+        int []primaryColor = hsbToRgb(hue(colorPickerPrimary.activeColor),
+                                      saturation(colorPickerPrimary.activeColor),
+                                      brightness(colorPickerPrimary.activeColor));
+        settings.changeColor(primaryColor[0], primaryColor[1], primaryColor[2], 1);
+
+        int []secondaryColor = hsbToRgb(hue(colorPickerSecondary.activeColor),
+                                        saturation(colorPickerSecondary.activeColor),
+                                        brightness(colorPickerSecondary.activeColor));
+        settings.changeColor(secondaryColor[0], secondaryColor[1], secondaryColor[2], 2);
     }
 
 }
