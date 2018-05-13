@@ -34,11 +34,11 @@ class Circle {
 
     // Makes the circle visible
     void show(int coloDisegno) {
-        stroke(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2]);
+        stroke(rgbToHsb(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2], 255));
         strokeWeight(3);
         fill(0);
         ellipse(this.x, this.y, 50, 50);
-        fill(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2]);
+        fill(rgbToHsb(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2], 255));
         ellipse(this.x, this.y, 10, 10);
     }
 

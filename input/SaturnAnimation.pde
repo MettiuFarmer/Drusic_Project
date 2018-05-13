@@ -29,16 +29,16 @@ public class SaturnAnimation {
 
         if (whatDraw == 1) {
             for (int i = 0; i < 100; i++) {
-                stroke(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                                settings.getColor(whatDraw)[1],
+                                settings.getColor(whatDraw)[2], 255));
                 strokeWeight(2);
 
                 this.starsForPrimary[i].alpha(adaptedSpectrum[adaptedSpectrum.length - 1]);
                 
-                fill(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                fill(rgbToHsb(settings.getColor(whatDraw)[0],
+                              settings.getColor(whatDraw)[1],
+                              settings.getColor(whatDraw)[2], 255));
                 
                 this.starsForPrimary[i].setX((int) (this.starsForPrimary[i].getR() * cos(this.starsForPrimary[i].getAlpha())) + width / 2);
                 this.starsForPrimary[i].setY((int) (this.starsForPrimary[i].getR() * sin(this.starsForPrimary[i].getAlpha())) + height / 2);
@@ -55,16 +55,16 @@ public class SaturnAnimation {
             }
         } else {
             for (int i = 0; i < 100; i++) {
-                stroke(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                                settings.getColor(whatDraw)[1],
+                                settings.getColor(whatDraw)[2], 255));
                 strokeWeight(2);
 
                 this.starsForSecondary[i].alpha(adaptedSpectrum[adaptedSpectrum.length - 1]);
                 
-                fill(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                fill(rgbToHsb(settings.getColor(whatDraw)[0],
+                              settings.getColor(whatDraw)[1],
+                              settings.getColor(whatDraw)[2], 255));
                 
                 this.starsForSecondary[i].setX((int) (this.starsForSecondary[i].getR() * cos(this.starsForSecondary[i].getAlpha())) + width / 2);
                 this.starsForSecondary[i].setY((int) (this.starsForSecondary[i].getR() * sin(this.starsForSecondary[i].getAlpha())) + height / 2);

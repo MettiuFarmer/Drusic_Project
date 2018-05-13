@@ -41,12 +41,14 @@ float []spectrum;
 MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
+SettingsWindow settingsWindow;
 
 public void setup() {
     // Processing settings
     
-    //size(1000, 800);
+    //size(1650, 800);
     
+    colorMode(HSB, TWO_PI, 1.0f, 1.0f, 1);
 
     // Variables initialization
     numberOfBands = 1024;
@@ -55,11 +57,13 @@ public void setup() {
     microphone = new MicrophoneInput();
     settings = new Settings();
     animationHandler = new AnimationHandler();
+    settingsWindow = new SettingsWindow();
 
     // Defaults initialization
-    settings.changeColor(255, 153, 0, 1);
-    settings.changeColor(254, 254, 254, 2);
+    settings.changeColor(255, 0, 0, 1);
+    settings.changeColor(0, 255, 0, 2);
     settings.changeColor(0, 0, 0, 3);
+    settingsWindow.initializeWindowComponents();
 }
 
 public void draw() {
@@ -69,17 +73,22 @@ public void draw() {
 
     // Setting the background
     int []backgroundColor = settings.getColor(3);
-    background(backgroundColor[0],
-               backgroundColor[1],
-               backgroundColor[2]);
+    int bgColor = rgbToHsb(backgroundColor[0],
+                             backgroundColor[1],
+                             backgroundColor[2], 255);
+    background(bgColor);
     
     animationHandler.routeAnimation();
+    if (settingsWindow.isVisibile()) {
+        settingsWindow.showWindow();
+    }
 }
 
 public float[] createSpectrum() {
     float[] newSpectrum = new float[2048];
     int count = 0;
 
+    /*
     for (int i = 0; i < 1535; i++) {
         if (i % 3 == 0 && i <= 1000) {
             newSpectrum[i] = spectrumInitializer[count];
@@ -90,8 +99,71 @@ public float[] createSpectrum() {
             count++;
         }
     }
+    */
+
+    for (int i = 0; i < 2048; i += 2) {
+        newSpectrum[i] = spectrumInitializer[count];
+        newSpectrum[i + 1] = spectrumInitializer[count];
+        count++;
+    }
 
     return newSpectrum;
+}
+
+public int rgbToHsb(int redColor, int greenColor, int blueColor, int alphaColor) {
+    float r = PApplet.parseFloat(redColor);
+    float g = PApplet.parseFloat(greenColor);
+    float b = PApplet.parseFloat(blueColor);
+
+    float b_ = 0;
+    float h = 0;
+    float s = 0;
+
+    float var_r = r / 255;
+    float var_g = g / 255;
+    float var_b = b / 255;
+
+    float var_min = min(var_r, var_g, var_b);
+    float var_max = max(var_r, var_g, var_b);
+    float del_max = var_max - var_min;
+
+    b_ = var_max;
+
+    if (del_max == 0) {
+        h = 0;
+        s = 0;
+    } else {
+        s = del_max / var_max;
+
+        float del_r = (((var_max - var_r) / 6) + (del_max / 2)) / del_max;
+        float del_g = (((var_max - var_g) / 6) + (del_max / 2)) / del_max;
+        float del_b = (((var_max - var_b) / 6) + (del_max / 2)) / del_max;
+
+        if (var_r == var_max) {
+            h = del_b - del_g;
+        } else if (var_g == var_max) {
+            h = (1.0f / 3.0f) + del_r - del_b;
+        } else if (var_b == var_max) {
+            h = (2.0f / 3.0f) + del_g - del_r;
+        }
+
+        if (h < 0) {
+            h += 1;
+        }
+        if (h > 1) {
+            h -= 1;
+        }
+
+        h = h * TWO_PI;
+    }
+    return color(h, s, b_, map(alphaColor, 0, 255, 0, 1));
+}
+
+public void keyPressed() {
+    if (key == 's' || key == 'S') {
+        settingsWindow.changeVisibility();
+    }
+    // TODO: key to charge preset
 }
 public class AnimationHandler {
 
@@ -230,11 +302,11 @@ class Circle {
 
     // Makes the circle visible
     public void show(int coloDisegno) {
-        stroke(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2]);
+        stroke(rgbToHsb(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2], 255));
         strokeWeight(3);
         fill(0);
         ellipse(this.x, this.y, 50, 50);
-        fill(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2]);
+        fill(rgbToHsb(settings.getColor(coloDisegno)[0], settings.getColor(coloDisegno)[1], settings.getColor(coloDisegno)[2], 255));
         ellipse(this.x, this.y, 10, 10);
     }
 
@@ -288,6 +360,138 @@ class Circle {
 
     public void setAlpha(float a) {
         this.alpha = a;
+    }
+
+}
+class CustomColorPicker {
+
+    int
+        ColorPickerX, //color picker horizontal position
+        ColorPickerY, //color picker vertical position
+        LineY; //hue line vertical position
+    float
+        CrossX, //saturation+brightness cross horizontal position
+        CrossY, //saturation+brightness cross horizontal position
+        ColorSelectorX = 100, //color selector button horizontal position <------------------------------------------- CHANGE
+        ColorSelectorY = 100; //color selector button vertical position   <------------------------------------------- CHANGE
+
+    boolean
+        isDraggingCross = false, //check if mouse is dragging the cross
+        isDraggingLine = false, //check if mouse is dragging the line
+        ShowColorPicker = true; //toggle color picker visibility (even = not visible, odd = visible) 
+
+    int 
+        activeColor = color(PI, 0.5f, 0.5f), //contain the selected color  
+        interfaceColor = color(2*PI, 1.0f, 1.0f); //change as you want               <------------------------------------------- CHANGE
+
+    CustomColorPicker(int pickx, int picky) {
+        ColorPickerX = pickx;
+        ColorPickerY = picky;
+        LineY = ColorPickerY + PApplet.parseInt(hue(activeColor)); //set initial Line position
+        CrossX = ColorPickerX + saturation(activeColor)*255; //set initial Line position
+        CrossY = ColorPickerY + brightness(activeColor)*255; //set initial Line position
+    }
+
+    public void update() {
+        checkMouse();
+        activeColor = color( (LineY - ColorPickerY)/40.58f , (CrossX - ColorPickerX)/255.0f , (255 - ( CrossY - ColorPickerY ))/255.0f ); //set current active color
+    }
+
+    public void display() {
+        drawColorSelector(); 
+        drawColorPicker();
+        drawLine();
+        drawCross();
+        drawActiveColor();
+        drawValues();
+        //drawOK();
+    }
+
+    public void drawColorSelector() {
+        stroke( interfaceColor );
+        strokeWeight( 1 );
+        fill( 0 );
+        rect( ColorSelectorX , ColorSelectorY , 20 , 20 ); //draw color selector border at its x y position
+        stroke( 0 );
+        fill( activeColor );
+        rect( ColorSelectorX + 1 , ColorSelectorY + 1 , 18 , 18 ); //draw the color selector fill 1px inside the border
+    }
+
+    public void drawOK() {
+        if ( mouseX > ColorPickerX + 285 && mouseX < ColorPickerX + 305 && mouseY > ColorPickerY + 240 && mouseY < ColorPickerY + 260 ) //check if the cross is on the darker color
+        fill(0); //optimize visibility on ligher colors
+        else
+        fill(100); //optimize visibility on darker colors
+        text( "OK", ColorPickerX + 285, ColorPickerY + 250 );
+    }
+
+    public void drawValues() {
+        fill( 2*PI );
+        //fill( 0 );
+        textSize( 10 );
+
+        text( "H: " + PApplet.parseInt( ( LineY - ColorPickerY ) * 1.417647f ) + "\u00b0", ColorPickerX + 285, ColorPickerY +15);
+        text( "S: " + PApplet.parseInt( ( CrossX - ColorPickerX ) * 0.39215f + 0.5f ) + "%", ColorPickerX + 286, ColorPickerY + 30 );
+        text( "B: " + PApplet.parseInt( 100 - ( ( CrossY - ColorPickerY ) * 0.39215f ) ) + "%", ColorPickerX + 285, ColorPickerY + 45 );
+
+        text( "R: " + PApplet.parseInt( red( activeColor )*40.85f ), ColorPickerX + 285, ColorPickerY + 70 );
+        text( "G: " + PApplet.parseInt( green( activeColor )*255 ), ColorPickerX + 285, ColorPickerY + 85 );
+        text( "B: " + PApplet.parseInt( blue( activeColor )*255 ), ColorPickerX + 285, ColorPickerY + 100 );
+
+        text( hex( activeColor, 6 ), ColorPickerX + 285, ColorPickerY + 125 );
+    }
+
+    public void drawCross() {
+        if ( brightness( activeColor ) < 0.35f )
+        stroke( 2*PI );
+        else
+        stroke( 0 );
+
+        line( CrossX - 5, CrossY, CrossX + 5, CrossY );
+        line( CrossX, CrossY - 5, CrossX, CrossY + 5 );
+    }
+
+    public void drawLine() {
+        stroke(0);
+        line( ColorPickerX + 259, LineY, ColorPickerX + 276, LineY );
+    }
+
+    public void drawColorPicker() {
+        stroke( interfaceColor );
+        for ( int j = 0; j < 255; j++ ) { //draw a row of pixel with the same brightness but progressive saturation
+            for ( int i = 0; i < 255; i++ ) //draw a column of pixel with the same saturation but progressive brightness
+                set( ColorPickerX + j, ColorPickerY + i, color((LineY - ColorPickerY)/40.58f, j/255.0f, (255 - i)/255.0f ) );
+        }
+
+        for ( int j = 0; j < 255; j++ ) {
+            for ( int i = 0; i < 20; i++ )
+                set( ColorPickerX + 258 + i, ColorPickerY + j, color( j/40.58f, 1.0f, 1.0f ) );
+        }
+    }
+
+    public void drawActiveColor() {
+        fill( activeColor );
+        stroke( 0 );
+        strokeWeight( 1 );
+        rect( ColorPickerX + 258, ColorPickerY+280, 40, 40 );
+    }
+
+    public void checkMouse() {
+        if ( mousePressed ) {
+            if (mouseX>ColorPickerX+258&&mouseX<ColorPickerX+277&&mouseY>ColorPickerY-1&&mouseY<ColorPickerY+255&&!isDraggingCross) {
+                LineY=mouseY;
+                isDraggingLine = true;
+            }
+
+            if (mouseX>ColorPickerX-1&&mouseX<ColorPickerX+255&&mouseY>ColorPickerY-1&&mouseY<ColorPickerY+255&&!isDraggingLine) {
+                CrossX=mouseX;
+                CrossY=mouseY;
+                isDraggingCross = true;
+            }
+        } else {
+            isDraggingCross = false;
+            isDraggingLine = false;
+        }
     }
 
 }
@@ -371,9 +575,9 @@ public class MagicsphereAnimation {
                 magic += adaptedSpectrum[i + 250];
             }
 
-            stroke(settings.getColor(whatDraw)[0],
-                settings.getColor(whatDraw)[1],
-                settings.getColor(whatDraw)[2]);
+            stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                            settings.getColor(whatDraw)[1],
+                            settings.getColor(whatDraw)[2], 255));
             strokeWeight(1);
 
             pushMatrix();
@@ -432,9 +636,9 @@ public class OndaAnimation {
         beginShape();
         while (i != width) {
             if (i != (spectrumLength - 1)) {
-                stroke(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                                settings.getColor(whatDraw)[1],
+                                settings.getColor(whatDraw)[2], 255));
                 strokeWeight(3);
                 noFill();
                 curveVertex(i, height - 50 - adaptedSpectrum[i]);
@@ -475,16 +679,16 @@ public class SaturnAnimation {
 
         if (whatDraw == 1) {
             for (int i = 0; i < 100; i++) {
-                stroke(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                                settings.getColor(whatDraw)[1],
+                                settings.getColor(whatDraw)[2], 255));
                 strokeWeight(2);
 
                 this.starsForPrimary[i].alpha(adaptedSpectrum[adaptedSpectrum.length - 1]);
                 
-                fill(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                fill(rgbToHsb(settings.getColor(whatDraw)[0],
+                              settings.getColor(whatDraw)[1],
+                              settings.getColor(whatDraw)[2], 255));
                 
                 this.starsForPrimary[i].setX((int) (this.starsForPrimary[i].getR() * cos(this.starsForPrimary[i].getAlpha())) + width / 2);
                 this.starsForPrimary[i].setY((int) (this.starsForPrimary[i].getR() * sin(this.starsForPrimary[i].getAlpha())) + height / 2);
@@ -501,16 +705,16 @@ public class SaturnAnimation {
             }
         } else {
             for (int i = 0; i < 100; i++) {
-                stroke(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                                settings.getColor(whatDraw)[1],
+                                settings.getColor(whatDraw)[2], 255));
                 strokeWeight(2);
 
                 this.starsForSecondary[i].alpha(adaptedSpectrum[adaptedSpectrum.length - 1]);
                 
-                fill(settings.getColor(whatDraw)[0],
-                       settings.getColor(whatDraw)[1],
-                       settings.getColor(whatDraw)[2]);
+                fill(rgbToHsb(settings.getColor(whatDraw)[0],
+                              settings.getColor(whatDraw)[1],
+                              settings.getColor(whatDraw)[2], 255));
                 
                 this.starsForSecondary[i].setX((int) (this.starsForSecondary[i].getR() * cos(this.starsForSecondary[i].getAlpha())) + width / 2);
                 this.starsForSecondary[i].setY((int) (this.starsForSecondary[i].getR() * sin(this.starsForSecondary[i].getAlpha())) + height / 2);
@@ -554,12 +758,12 @@ public class Settings implements Serializable {
 
         // -> primary draw variables
         this.colorPrimary = new int[3];
-        this.sensitivityPrimary = 10;
+        this.sensitivityPrimary = 80;
         this.modelPrimary = 4;
 
         // -> secondary draw variables
         this.colorSecondary = new int[3];
-        this.sensitivitySecondary = 40;
+        this.sensitivitySecondary = 30;
         this.modelSecondary = 4;
     }
 
@@ -634,6 +838,76 @@ public class Settings implements Serializable {
     
     public int getSensitivitySecondary() {
         return this.sensitivitySecondary;
+    }
+
+}
+public class SettingsWindow {
+
+    private ControlP5 cp5;
+    private PGraphics pg;
+    private CustomColorPicker colorPickerPrimary;
+    private CustomColorPicker colorPickerSecondary;
+    private boolean settingsWindowVisible;
+
+    public SettingsWindow() {
+        this.cp5 = new ControlP5(myPApplet);
+        this.pg = createGraphics(800, 600);
+        this.settingsWindowVisible = false;
+        this.updateMouseStatus();
+    }
+
+    public void initializeWindowComponents() {
+        this.cp5.setVisible(this.isVisibile());
+        pg.beginDraw();
+        /**/
+            // this.cp5.addColorPicker("picker")
+            //     .setPosition(60, 100)
+            //     .setColorValue(color(255, 128, 0, 128));
+            
+            // colorPickerPrimary = new CustomColorPicker(width / 2 - 400,
+            //                                            height / 2 - 300);
+            
+            colorPickerPrimary = new CustomColorPicker(10, 10);
+        /**/
+        pg.endDraw();
+    }
+
+    public void changeVisibility() {
+        this.settingsWindowVisible = !this.settingsWindowVisible;
+        this.cp5.setVisible(this.isVisibile());
+        this.updateMouseStatus();
+    }
+
+    public boolean isVisibile() {
+        return this.settingsWindowVisible;
+    }
+
+    public void updateMouseStatus() {
+        if (this.isVisibile()) {
+            cursor();
+        } else {
+            noCursor();
+        }
+    }
+
+    public void showWindow() {
+        this.cp5.setVisible(this.isVisibile());
+        pg.beginDraw();
+        /**/
+            this.cp5.setGraphics(pg, width / 2 - 400, height / 2 - 300);
+            noFill();
+            
+            this.pg.background(rgbToHsb(181, 181, 181, 60));
+            
+            // this.pg.stroke(settings.getColor(1)[0],
+            //                settings.getColor(1)[1],
+            //                settings.getColor(1)[2]);
+            // rect(width / 2 - 400, height / 2 - 300, 800, 600);
+            
+            colorPickerPrimary.display();
+            colorPickerPrimary.update();
+        /**/
+        pg.endDraw();
     }
 
 }

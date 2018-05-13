@@ -14,9 +14,9 @@ public class MagicsphereAnimation {
                 magic += adaptedSpectrum[i + 250];
             }
 
-            stroke(settings.getColor(whatDraw)[0],
-                settings.getColor(whatDraw)[1],
-                settings.getColor(whatDraw)[2]);
+            stroke(rgbToHsb(settings.getColor(whatDraw)[0],
+                            settings.getColor(whatDraw)[1],
+                            settings.getColor(whatDraw)[2], 255));
             strokeWeight(1);
 
             pushMatrix();
