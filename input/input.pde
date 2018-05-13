@@ -4,6 +4,7 @@ import java.util.*;
 import java.sql.*;
 import java.awt.Desktop;
 import java.net.URI;
+import javax.swing.*;
 import processing.sound.*;
 import controlP5.*;
 
@@ -14,6 +15,7 @@ input myPApplet = this;
 int numberOfBands;
 float []spectrumInitializer;
 float []spectrum;
+URI aboutMeLink;
 MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
@@ -30,6 +32,9 @@ void setup() {
     numberOfBands = 1024;
     spectrumInitializer = new float[numberOfBands];
     spectrum = new float[2048];
+    try {
+        aboutMeLink = new URI("http://80.22.95.8/classiquinte/5Ain/fattore.matteo/Progetto_Drusic_Website/index.php");
+    } catch (Exception e) {}
     microphone = new MicrophoneInput();
     settings = new Settings();
     animationHandler = new AnimationHandler();

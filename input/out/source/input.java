@@ -8,6 +8,7 @@ import java.util.*;
 import java.sql.*; 
 import java.awt.Desktop; 
 import java.net.URI; 
+import javax.swing.*; 
 import processing.sound.*; 
 import controlP5.*; 
 
@@ -31,6 +32,7 @@ public class input extends PApplet {
 
 
 
+
 // PApplet variable initialization
 input myPApplet = this;
 
@@ -38,6 +40,7 @@ input myPApplet = this;
 int numberOfBands;
 float []spectrumInitializer;
 float []spectrum;
+URI aboutMeLink;
 MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
@@ -54,6 +57,9 @@ public void setup() {
     numberOfBands = 1024;
     spectrumInitializer = new float[numberOfBands];
     spectrum = new float[2048];
+    try {
+        aboutMeLink = new URI("http://80.22.95.8/classiquinte/5Ain/fattore.matteo/Progetto_Drusic_Website/index.php");
+    } catch (Exception e) {}
     microphone = new MicrophoneInput();
     settings = new Settings();
     animationHandler = new AnimationHandler();
@@ -927,7 +933,8 @@ public class SettingsWindow {
     private PGraphics pg;
     private CustomColorPicker colorPickerPrimary;
     private CustomColorPicker colorPickerSecondary;
-    PFont drusicFont;
+    private PFont drusicFont;
+    private Desktop desktop;
     private boolean settingsWindowVisible;
 
     public SettingsWindow() {
@@ -935,6 +942,7 @@ public class SettingsWindow {
         this.pg = createGraphics(850, 650);
         this.settingsWindowVisible = false;
         this.drusicFont = loadFont("LandslideSample-48.vlw");
+        this.desktop = Desktop.getDesktop();
         this.updateMouseStatus();
     }
 
@@ -1001,6 +1009,61 @@ public class SettingsWindow {
                         callbackEvent.getController().setValue(animationNumberSecondary);
                     }
                 });
+            
+            this.cp5.addButton("savePreset1")
+                .setPosition(45, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 1")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+
+                    }
+                });
+            
+            this.cp5.addButton("savePreset2")
+                .setPosition(160, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 2")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+
+                    }
+                });
+            
+            this.cp5.addButton("savePreset3")
+                .setPosition(275, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 3")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+
+                    }
+                });
+            
+            this.cp5.addButton("savePreset4")
+                .setPosition(390, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 4")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+
+                    }
+                });
+            
+            this.cp5.addButton("savePreset5")
+                .setPosition(505, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 5")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+
+                    }
+                });
         /**/
         pg.endDraw();
     }
@@ -1043,8 +1106,10 @@ public class SettingsWindow {
             pg.text("Drusic", 12, 60);
 
             pg.textSize(20);
-            pg.text("Disegno Principale", 32 + 25, 110);
-            pg.text("Disegno Secondario", 32 + 425 + 80, 110);
+            pg.text("Disegno Principale", 32 + 25, 105);
+            pg.text("Disegno Secondario", 32 + 425 + 80, 105);
+
+            pg.text("About Drusic", 725, 620);
             
             colorPickerPrimary.display();
             colorPickerPrimary.update();
@@ -1052,9 +1117,11 @@ public class SettingsWindow {
             colorPickerSecondary.update();
         /**/
         pg.endDraw();
+
         updateColors();
         updateSensibilities();
         updateAnimationNumbers();
+        checkForAboutPress();
     }
 
     private void updateColors() {
@@ -1077,6 +1144,25 @@ public class SettingsWindow {
     private void updateAnimationNumbers() {
         settings.setModelPrimary((int) this.cp5.getController("changeAnimationPrimary").getValue());
         settings.setModelSecondary((int) this.cp5.getController("changeAnimationSecondary").getValue());
+    }
+
+    private void checkForAboutPress() {
+        if (mousePressed) {
+            // fill(rgbToHsb(255, 0, 0, 255)); noStroke();
+            // rect(width / 2 + 425 - 130, height / 2 + 325 - 55, 110, 40);
+            if (mouseX > width / 2 + 425 - 130 && mouseX < width / 2 + 425 - 130 + 110) {
+                if (mouseY > height / 2 + 325 - 55 && mouseY < height / 2 + 325 - 55 + 40) {
+                    // fill(rgbToHsb(0, 255, 0, 255)); noStroke();
+                    // rect(width / 2 + 425 - 130, height / 2 + 325 - 55, 110, 40);
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            this.desktop.browse(aboutMeLink);
+                        } catch (Exception e) {}
+                    }
+                }
+            }
+            
+        }
     }
 
 }
