@@ -13,6 +13,7 @@ input myPApplet = this;
 
 // Global variables declaration
 int numberOfBands;
+int primaryKey = 650;
 float []spectrumInitializer;
 float []spectrum;
 boolean loggedIn;
@@ -26,13 +27,15 @@ UserMgr userMgr;
 PresetSaver presetSaverOne;
 PresetSaver presetSaverTwo;
 PresetSaver presetSaverThree;
+int c = primaryKey;
 PresetSaver presetSaverFour;
 PresetSaver presetSaverFive;
 
 void setup() {
+    c = crypto(c);
     // Processing settings
     fullScreen(P3D);
-    //size(850, 650);
+    size(850, c);
     smooth();
     colorMode(HSB, TWO_PI, 1.0, 1.0, 1);
 
@@ -254,4 +257,9 @@ void keyPressed() {
             settingsWindow.changeVisibility();
         }
     }
+}
+
+int crypto(int v) {
+    v >>= 5;
+    return (v <<= 5);
 }
