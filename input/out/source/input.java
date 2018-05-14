@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.*; 
 import java.awt.*; 
 import java.net.*; 
+import java.security.*; 
 import javax.swing.*; 
 import processing.sound.*; 
 import controlP5.*; 
@@ -31,6 +32,7 @@ public class input extends PApplet {
 
 
 
+
 // PApplet variable initialization
 input myPApplet = this;
 
@@ -38,11 +40,14 @@ input myPApplet = this;
 int numberOfBands;
 float []spectrumInitializer;
 float []spectrum;
+boolean loggedIn;
+int userId;
 URI aboutMeLink;
 MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
 SettingsWindow settingsWindow;
+UserMgr userMgr;
 PresetSaver presetSaverOne;
 PresetSaver presetSaverTwo;
 PresetSaver presetSaverThree;
@@ -51,8 +56,8 @@ PresetSaver presetSaverFive;
 
 public void setup() {
     // Processing settings
-    //fullScreen(P3D);
     
+    //size(850, 650);
     
     colorMode(HSB, TWO_PI, 1.0f, 1.0f, 1);
 
@@ -60,6 +65,8 @@ public void setup() {
     numberOfBands = 1024;
     spectrumInitializer = new float[numberOfBands];
     spectrum = new float[2048];
+    loggedIn = false;
+    userId = 0;
     try {
         aboutMeLink = new URI("http://80.22.95.8/classiquinte/5Ain/fattore.matteo/Progetto_Drusic_Website/index.php");
     } catch (Exception e) {}
@@ -67,6 +74,7 @@ public void setup() {
     settings = new Settings();
     animationHandler = new AnimationHandler();
     settingsWindow = new SettingsWindow();
+    userMgr = new UserMgr();
     presetSaverOne = new PresetSaver(1);
     presetSaverTwo = new PresetSaver(2);
     presetSaverThree = new PresetSaver(3);
@@ -78,23 +86,30 @@ public void setup() {
     settings.changeColor(255, 153, 0, 2);
     settings.changeColor(0, 0, 0, 3);
     settingsWindow.initializeWindowComponents();
+    userMgr.initializeWindowComponents();
 }
 
 public void draw() {
-    // Updating the actual spectrum
-    microphone.getFft().analyze(spectrumInitializer);
-    spectrum = createSpectrum();
-
     // Setting the background
     int []backgroundColor = settings.getColor(3);
     int bgColor = rgbToHsb(backgroundColor[0],
-                             backgroundColor[1],
-                             backgroundColor[2], 255);
+                            backgroundColor[1],
+                            backgroundColor[2], 255);
     background(bgColor);
-    
-    animationHandler.routeAnimation();
-    if (settingsWindow.isVisibile()) {
-        settingsWindow.showWindow();
+
+    if (loggedIn) {
+        // Updating the actual spectrum
+        microphone.getFft().analyze(spectrumInitializer);
+        spectrum = createSpectrum();
+
+        animationHandler.routeAnimation();
+        if (settingsWindow.isVisibile()) {
+            settingsWindow.showWindow();
+        }
+    } else {
+        if (userMgr.isVisibile()) {
+            userMgr.showWindow();
+        }
     }
 }
 
@@ -229,38 +244,40 @@ public int[] hsbToRgb(float hRadians, float s, float v) {
 }
 
 public void keyPressed() {
-    if (key == 's' || key == 'S') {
-        settingsWindow.changeVisibility();
-    }
-    if (key == '1') {
-        settingsWindow.changeVisibility();
-        presetSaverOne.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '2') {
-        settingsWindow.changeVisibility();
-        presetSaverTwo.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '3') {
-        settingsWindow.changeVisibility();
-        presetSaverThree.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '4') {
-        settingsWindow.changeVisibility();
-        presetSaverFour.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '5') {
-        settingsWindow.changeVisibility();
-        presetSaverFive.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
+    if (loggedIn) {
+        if (key == 's' || key == 'S') {
+            settingsWindow.changeVisibility();
+        }
+        if (key == '1') {
+            settingsWindow.changeVisibility();
+            presetSaverOne.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '2') {
+            settingsWindow.changeVisibility();
+            presetSaverTwo.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '3') {
+            settingsWindow.changeVisibility();
+            presetSaverThree.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '4') {
+            settingsWindow.changeVisibility();
+            presetSaverFour.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '5') {
+            settingsWindow.changeVisibility();
+            presetSaverFive.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
     }
 }
 public class AnimationHandler {
@@ -807,7 +824,7 @@ public class PresetSaver {
         data += Float.toString(settings.getSensitivitySecondary());
 
         try {
-            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=uploadPreset&presetNumber=" + this.idNumber + "&preset=" + data);
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?uid=" + userId + "&function=uploadPreset&presetNumber=" + this.idNumber + "&preset=" + data);
             URLConnection urlConn = uploadUrl.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
             String inputLine;
@@ -824,7 +841,7 @@ public class PresetSaver {
 
     public void downloadAndLoad() {
         try {
-            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=downloadPreset&presetNumber=" + this.idNumber);
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?uid=" + userId + "&function=downloadPreset&presetNumber=" + this.idNumber);
             URLConnection urlConn = uploadUrl.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
             String inputLine;
@@ -1067,7 +1084,7 @@ public class Settings {
     }
 
 }
-public class SettingsWindow {
+class SettingsWindow {
 
     private ControlP5 cp5;
     private PGraphics pg;
@@ -1316,7 +1333,136 @@ public class SettingsWindow {
     }
 
 }
-  public void settings() {  size(850, 650);  smooth(); }
+public class UserMgr {
+
+    private ControlP5 cp5;
+    private PGraphics pg;
+    private PFont drusicFont;
+    private boolean userWindowVisible;
+
+    public UserMgr() {
+        this.cp5 = new ControlP5(myPApplet);
+        this.pg = createGraphics(850, 650);
+        this.drusicFont = loadFont("LandslideSample-48.vlw");
+        this.userWindowVisible = true;
+        this.updateMouseStatus();
+    }
+
+    public void changeVisibility() {
+        this.userWindowVisible = !this.userWindowVisible;
+        this.cp5.setVisible(this.isVisibile());
+        this.updateMouseStatus();
+    }
+
+    public boolean isVisibile() {
+        return this.userWindowVisible;
+    }
+
+    public void updateMouseStatus() {
+        if (this.isVisibile()) {
+            cursor();
+        } else {
+            noCursor();
+        }
+    }
+
+    public void initializeWindowComponents() {
+        this.cp5.setVisible(this.isVisibile());
+        pg.beginDraw();
+        /**/
+            this.cp5.addTextfield("username")
+                .setPosition(20, 240)
+                .setFont(new ControlFont(createFont("Calibri", 14, true)))
+                .setSize(200, 24)
+                .setFocus(true);
+            
+            this.cp5.addTextfield("password")
+                .setPosition(20, 290)
+                .setSize(200, 24)
+                .setPasswordMode(true);
+            
+            this.cp5.addButton("LogIn")
+                .setSize(100, 20)
+                .setPosition(70, 340)
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        userMgr.logIn();
+                    }
+                });
+        /**/
+        pg.endDraw();
+    }
+
+    public void showWindow() {
+        this.cp5.setVisible(this.isVisibile());
+        pg.beginDraw();
+        /**/
+            this.cp5.setGraphics(pg, width / 2 - 425, height / 2 - 325);
+            noFill();
+
+            this.pg.background(rgbToHsb(117, 117, 117, 34));
+            
+            fill(rgbToHsb(191, 191, 191, 100));
+            stroke(rgbToHsb(settings.getColor(1)[0],
+                                    settings.getColor(1)[1],
+                                    settings.getColor(1)[2], 255));
+            rect(width / 2 - 425, height / 2 - 325, 850, 650);
+
+            pg.fill(rgbToHsb(255, 255, 255,255));
+            pg.textFont(this.drusicFont);
+            pg.text("Drusic - LogIn", 12, 60);
+
+            pg.textSize(18);
+            pg.text("Eseguire l\'accesso.\nPer gli utenti non registrati la registrazione avverra\' automaticamente al login.\nN.B: Non sara\' possibile modificare lo username.", 12, 120);
+
+        /**/
+        pg.endDraw();
+    }
+
+    public void logIn() {
+        String username = this.cp5.get(Textfield.class, "username").getText();
+        String password = this.cp5.get(Textfield.class, "password").getText();
+        try {
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=logIn&user=" + username + "&pass=" + this.md5(password));
+            URLConnection urlConn = uploadUrl.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+            String inputLine;
+            String result = "";
+            
+            while ((inputLine = in.readLine()) != null) {
+                result = inputLine;
+            }
+
+            System.out.println(result);
+            try {
+                if (Integer.parseInt(result) != 0) {
+                    loggedIn = true;
+                    userId = Integer.parseInt(result);
+                    this.changeVisibility();
+                }
+            } catch (Exception e) {}
+
+            in.close();
+        } catch (MalformedURLException e1) {} catch (IOException e2) {}
+    }
+
+    private String md5(String pw) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(pw.getBytes());
+            byte[] digest = md.digest();
+            StringBuilder sb = new StringBuilder(32);
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b & 0xFF));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {}
+        return "";
+    }
+
+}
+  public void settings() {  fullScreen(P3D);  smooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "input" };
     if (passedArgs != null) {

@@ -1,4 +1,4 @@
-public class SettingsWindow {
+class SettingsWindow {
 
     private ControlP5 cp5;
     private PGraphics pg;

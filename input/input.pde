@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.*;
 import java.awt.*;
 import java.net.*;
+import java.security.*;
 import javax.swing.*;
 import processing.sound.*;
 import controlP5.*;
@@ -14,11 +15,14 @@ input myPApplet = this;
 int numberOfBands;
 float []spectrumInitializer;
 float []spectrum;
+boolean loggedIn;
+int userId;
 URI aboutMeLink;
 MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
 SettingsWindow settingsWindow;
+UserMgr userMgr;
 PresetSaver presetSaverOne;
 PresetSaver presetSaverTwo;
 PresetSaver presetSaverThree;
@@ -27,8 +31,8 @@ PresetSaver presetSaverFive;
 
 void setup() {
     // Processing settings
-    //fullScreen(P3D);
-    size(850, 650);
+    fullScreen(P3D);
+    //size(850, 650);
     smooth();
     colorMode(HSB, TWO_PI, 1.0, 1.0, 1);
 
@@ -36,6 +40,8 @@ void setup() {
     numberOfBands = 1024;
     spectrumInitializer = new float[numberOfBands];
     spectrum = new float[2048];
+    loggedIn = false;
+    userId = 0;
     try {
         aboutMeLink = new URI("http://80.22.95.8/classiquinte/5Ain/fattore.matteo/Progetto_Drusic_Website/index.php");
     } catch (Exception e) {}
@@ -43,6 +49,7 @@ void setup() {
     settings = new Settings();
     animationHandler = new AnimationHandler();
     settingsWindow = new SettingsWindow();
+    userMgr = new UserMgr();
     presetSaverOne = new PresetSaver(1);
     presetSaverTwo = new PresetSaver(2);
     presetSaverThree = new PresetSaver(3);
@@ -54,23 +61,30 @@ void setup() {
     settings.changeColor(255, 153, 0, 2);
     settings.changeColor(0, 0, 0, 3);
     settingsWindow.initializeWindowComponents();
+    userMgr.initializeWindowComponents();
 }
 
 void draw() {
-    // Updating the actual spectrum
-    microphone.getFft().analyze(spectrumInitializer);
-    spectrum = createSpectrum();
-
     // Setting the background
     int []backgroundColor = settings.getColor(3);
     color bgColor = rgbToHsb(backgroundColor[0],
-                             backgroundColor[1],
-                             backgroundColor[2], 255);
+                            backgroundColor[1],
+                            backgroundColor[2], 255);
     background(bgColor);
-    
-    animationHandler.routeAnimation();
-    if (settingsWindow.isVisibile()) {
-        settingsWindow.showWindow();
+
+    if (loggedIn) {
+        // Updating the actual spectrum
+        microphone.getFft().analyze(spectrumInitializer);
+        spectrum = createSpectrum();
+
+        animationHandler.routeAnimation();
+        if (settingsWindow.isVisibile()) {
+            settingsWindow.showWindow();
+        }
+    } else {
+        if (userMgr.isVisibile()) {
+            userMgr.showWindow();
+        }
     }
 }
 
@@ -205,37 +219,39 @@ int[] hsbToRgb(float hRadians, float s, float v) {
 }
 
 void keyPressed() {
-    if (key == 's' || key == 'S') {
-        settingsWindow.changeVisibility();
-    }
-    if (key == '1') {
-        settingsWindow.changeVisibility();
-        presetSaverOne.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '2') {
-        settingsWindow.changeVisibility();
-        presetSaverTwo.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '3') {
-        settingsWindow.changeVisibility();
-        presetSaverThree.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '4') {
-        settingsWindow.changeVisibility();
-        presetSaverFour.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
-    }
-    if (key == '5') {
-        settingsWindow.changeVisibility();
-        presetSaverFive.downloadAndLoad();
-        settingsWindow.updateSettings();
-        settingsWindow.changeVisibility();
+    if (loggedIn) {
+        if (key == 's' || key == 'S') {
+            settingsWindow.changeVisibility();
+        }
+        if (key == '1') {
+            settingsWindow.changeVisibility();
+            presetSaverOne.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '2') {
+            settingsWindow.changeVisibility();
+            presetSaverTwo.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '3') {
+            settingsWindow.changeVisibility();
+            presetSaverThree.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '4') {
+            settingsWindow.changeVisibility();
+            presetSaverFour.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
+        if (key == '5') {
+            settingsWindow.changeVisibility();
+            presetSaverFive.downloadAndLoad();
+            settingsWindow.updateSettings();
+            settingsWindow.changeVisibility();
+        }
     }
 }

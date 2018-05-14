@@ -36,7 +36,7 @@ public class PresetSaver {
         data += Float.toString(settings.getSensitivitySecondary());
 
         try {
-            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=uploadPreset&presetNumber=" + this.idNumber + "&preset=" + data);
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?uid=" + userId + "&function=uploadPreset&presetNumber=" + this.idNumber + "&preset=" + data);
             URLConnection urlConn = uploadUrl.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
             String inputLine;
@@ -53,7 +53,7 @@ public class PresetSaver {
 
     public void downloadAndLoad() {
         try {
-            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=downloadPreset&presetNumber=" + this.idNumber);
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?uid=" + userId + "&function=downloadPreset&presetNumber=" + this.idNumber);
             URLConnection urlConn = uploadUrl.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
             String inputLine;
