@@ -33,6 +33,13 @@ class CustomColorPicker {
         CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
     }
 
+    void updateColor(color startColor) {
+        activeColor = startColor;
+        LineY = ColorPickerY + int(hue(activeColor) * 40.58);
+        CrossX = ColorPickerX + (saturation(activeColor) * 255);
+        CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
+    }
+
     void update() {
         checkMouse();
         activeColor = color( (LineY - ColorPickerY)/40.58 , (CrossX - ColorPickerX)/255.0 , (255 - ( CrossY - ColorPickerY ))/255.0 ); //set current active color

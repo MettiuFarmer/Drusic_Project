@@ -1,4 +1,4 @@
-public class Settings implements Serializable {
+public class Settings {
 
     // Class variables:
 

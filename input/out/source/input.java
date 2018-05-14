@@ -5,9 +5,8 @@ import processing.opengl.*;
 
 import java.io.*; 
 import java.util.*; 
-import java.sql.*; 
-import java.awt.Desktop; 
-import java.net.URI; 
+import java.awt.*; 
+import java.net.*; 
 import javax.swing.*; 
 import processing.sound.*; 
 import controlP5.*; 
@@ -32,7 +31,6 @@ public class input extends PApplet {
 
 
 
-
 // PApplet variable initialization
 input myPApplet = this;
 
@@ -45,11 +43,16 @@ MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
 SettingsWindow settingsWindow;
+PresetSaver presetSaverOne;
+PresetSaver presetSaverTwo;
+PresetSaver presetSaverThree;
+PresetSaver presetSaverFour;
+PresetSaver presetSaverFive;
 
 public void setup() {
     // Processing settings
+    //fullScreen(P3D);
     
-    //size(1650, 800);
     
     colorMode(HSB, TWO_PI, 1.0f, 1.0f, 1);
 
@@ -64,6 +67,11 @@ public void setup() {
     settings = new Settings();
     animationHandler = new AnimationHandler();
     settingsWindow = new SettingsWindow();
+    presetSaverOne = new PresetSaver(1);
+    presetSaverTwo = new PresetSaver(2);
+    presetSaverThree = new PresetSaver(3);
+    presetSaverFour = new PresetSaver(4);
+    presetSaverFive = new PresetSaver(5);
 
     // Defaults initialization
     settings.changeColor(255, 255, 255, 1);
@@ -224,7 +232,36 @@ public void keyPressed() {
     if (key == 's' || key == 'S') {
         settingsWindow.changeVisibility();
     }
-    // TODO: key to charge preset
+    if (key == '1') {
+        settingsWindow.changeVisibility();
+        presetSaverOne.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '2') {
+        settingsWindow.changeVisibility();
+        presetSaverTwo.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '3') {
+        settingsWindow.changeVisibility();
+        presetSaverThree.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '4') {
+        settingsWindow.changeVisibility();
+        presetSaverFour.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '5') {
+        settingsWindow.changeVisibility();
+        presetSaverFive.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
 }
 public class AnimationHandler {
 
@@ -462,6 +499,13 @@ class CustomColorPicker {
         CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
     }
 
+    public void updateColor(int startColor) {
+        activeColor = startColor;
+        LineY = ColorPickerY + PApplet.parseInt(hue(activeColor) * 40.58f);
+        CrossX = ColorPickerX + (saturation(activeColor) * 255);
+        CrossY = -(ColorPickerY + (brightness(activeColor) * 255) - 255);
+    }
+
     public void update() {
         checkMouse();
         activeColor = color( (LineY - ColorPickerY)/40.58f , (CrossX - ColorPickerX)/255.0f , (255 - ( CrossY - ColorPickerY ))/255.0f ); //set current active color
@@ -563,6 +607,13 @@ class CustomColorPicker {
             isDraggingLine = false;
         }
     }
+
+}
+public class Database {
+
+    public Database(){}
+
+    public void makeQuery(String query) {}
 
 }
 public class HyperlineAnimation {
@@ -718,6 +769,95 @@ public class OndaAnimation {
         endShape();
     }
 }
+public class PresetSaver {
+
+    private int idNumber;
+
+    public PresetSaver(int id) {
+        this.idNumber = id;
+    }
+
+    public void saveAndUpload() {
+        String data = "";
+        
+        int[] tmpColor;
+
+        tmpColor = settings.getColor(1);
+        data += Integer.toString(tmpColor[0]);
+        data += "-";
+        data += Integer.toString(tmpColor[1]);
+        data += "-";
+        data += Integer.toString(tmpColor[2]);
+        data += "-";
+        data += Integer.toString(settings.getModelPrimary());
+        data += "-";
+        data += Float.toString(settings.getSensitivityPrimary());
+        
+        data += "@";
+
+        tmpColor = settings.getColor(2);
+        data += Integer.toString(tmpColor[0]);
+        data += "-";
+        data += Integer.toString(tmpColor[1]);
+        data += "-";
+        data += Integer.toString(tmpColor[2]);
+        data += "-";
+        data += Integer.toString(settings.getModelSecondary());
+        data += "-";
+        data += Float.toString(settings.getSensitivitySecondary());
+
+        try {
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=uploadPreset&presetNumber=" + this.idNumber + "&preset=" + data);
+            URLConnection urlConn = uploadUrl.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+            String inputLine;
+            
+            /*
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println(inputLine);
+            }
+            */
+
+            in.close();
+        } catch (MalformedURLException e1) {} catch (IOException e2) {}
+    }
+
+    public void downloadAndLoad() {
+        try {
+            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=downloadPreset&presetNumber=" + this.idNumber);
+            URLConnection urlConn = uploadUrl.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+            String inputLine;
+            String presetsToDecompose = "";
+
+            while ((inputLine = in.readLine()) != null) {
+                presetsToDecompose = inputLine;
+            }
+            
+            if (presetsToDecompose != "") {
+                String []presetsDecomposed = presetsToDecompose.split("@");
+                
+                String []presetPrimary = presetsDecomposed[0].split("-");
+                String []presetSecondary = presetsDecomposed[1].split("-");
+
+                settings.changeColor(Integer.parseInt(presetPrimary[0]),
+                                     Integer.parseInt(presetPrimary[1]),
+                                     Integer.parseInt(presetPrimary[2]), 1);
+                settings.setModelPrimary(Integer.parseInt(presetPrimary[3]));
+                settings.setSensitivityPrimary(Float.parseFloat(presetPrimary[4]));
+
+                settings.changeColor(Integer.parseInt(presetSecondary[0]),
+                                     Integer.parseInt(presetSecondary[1]),
+                                     Integer.parseInt(presetSecondary[2]), 2);
+                settings.setModelSecondary(Integer.parseInt(presetSecondary[3]));
+                settings.setSensitivitySecondary(Float.parseFloat(presetSecondary[4]));
+            }
+
+            in.close();
+        } catch (MalformedURLException e1) {} catch (IOException e2) {}
+    }
+
+}
 public class SaturnAnimation {
 
     private Circle []starsForPrimary;
@@ -803,7 +943,7 @@ public class SaturnAnimation {
     }
 
 }
-public class Settings implements Serializable {
+public class Settings {
 
     // Class variables:
 
@@ -968,7 +1108,7 @@ public class SettingsWindow {
             this.cp5.addSlider("sensSecondary")
                 .setLabel("Sensibilita\'")
                 .setRange(0, 350)
-                .setValue(settings.getSensitivityPrimary())
+                .setValue(settings.getSensitivitySecondary())
                 .setPosition(525, 400)
                 .setSize(200, 20);
             
@@ -1017,7 +1157,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-
+                        presetSaverOne.saveAndUpload();
                     }
                 });
             
@@ -1028,7 +1168,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-
+                        presetSaverTwo.saveAndUpload();
                     }
                 });
             
@@ -1039,7 +1179,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-
+                        presetSaverThree.saveAndUpload();
                     }
                 });
             
@@ -1050,7 +1190,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-
+                        presetSaverFour.saveAndUpload();
                     }
                 });
             
@@ -1061,7 +1201,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-
+                        presetSaverFive.saveAndUpload();
                     }
                 });
         /**/
@@ -1165,8 +1305,18 @@ public class SettingsWindow {
         }
     }
 
+    public void updateSettings() {
+        colorPickerPrimary.updateColor(rgbToHsb(settings.getColor(1)[0], settings.getColor(1)[1], settings.getColor(1)[2], 255));
+        this.cp5.getController("sensPrimary").setValue(settings.getSensitivityPrimary());
+        this.cp5.getController("changeAnimationPrimary").setValue(settings.getModelPrimary());
+
+        colorPickerSecondary.updateColor(rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
+        this.cp5.getController("sensSecondary").setValue(settings.getSensitivitySecondary());
+        this.cp5.getController("changeAnimationSecondary").setValue(settings.getModelSecondary());
+    }
+
 }
-  public void settings() {  fullScreen(P3D);  smooth(); }
+  public void settings() {  size(850, 650);  smooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "input" };
     if (passedArgs != null) {

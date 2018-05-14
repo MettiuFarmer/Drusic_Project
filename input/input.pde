@@ -1,9 +1,8 @@
 // Imports
 import java.io.*;
 import java.util.*;
-import java.sql.*;
-import java.awt.Desktop;
-import java.net.URI;
+import java.awt.*;
+import java.net.*;
 import javax.swing.*;
 import processing.sound.*;
 import controlP5.*;
@@ -20,11 +19,16 @@ MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
 SettingsWindow settingsWindow;
+PresetSaver presetSaverOne;
+PresetSaver presetSaverTwo;
+PresetSaver presetSaverThree;
+PresetSaver presetSaverFour;
+PresetSaver presetSaverFive;
 
 void setup() {
     // Processing settings
-    fullScreen(P3D);
-    //size(1650, 800);
+    //fullScreen(P3D);
+    size(850, 650);
     smooth();
     colorMode(HSB, TWO_PI, 1.0, 1.0, 1);
 
@@ -39,6 +43,11 @@ void setup() {
     settings = new Settings();
     animationHandler = new AnimationHandler();
     settingsWindow = new SettingsWindow();
+    presetSaverOne = new PresetSaver(1);
+    presetSaverTwo = new PresetSaver(2);
+    presetSaverThree = new PresetSaver(3);
+    presetSaverFour = new PresetSaver(4);
+    presetSaverFive = new PresetSaver(5);
 
     // Defaults initialization
     settings.changeColor(255, 255, 255, 1);
@@ -199,5 +208,34 @@ void keyPressed() {
     if (key == 's' || key == 'S') {
         settingsWindow.changeVisibility();
     }
-    // TODO: key to charge preset
+    if (key == '1') {
+        settingsWindow.changeVisibility();
+        presetSaverOne.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '2') {
+        settingsWindow.changeVisibility();
+        presetSaverTwo.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '3') {
+        settingsWindow.changeVisibility();
+        presetSaverThree.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '4') {
+        settingsWindow.changeVisibility();
+        presetSaverFour.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
+    if (key == '5') {
+        settingsWindow.changeVisibility();
+        presetSaverFive.downloadAndLoad();
+        settingsWindow.updateSettings();
+        settingsWindow.changeVisibility();
+    }
 }

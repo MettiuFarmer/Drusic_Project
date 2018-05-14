@@ -39,7 +39,7 @@ public class SettingsWindow {
             this.cp5.addSlider("sensSecondary")
                 .setLabel("Sensibilita\'")
                 .setRange(0, 350)
-                .setValue(settings.getSensitivityPrimary())
+                .setValue(settings.getSensitivitySecondary())
                 .setPosition(525, 400)
                 .setSize(200, 20);
             
@@ -88,7 +88,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-                        // TODO: save preset metodology (1)
+                        presetSaverOne.saveAndUpload();
                     }
                 });
             
@@ -99,7 +99,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-                        // TODO: save preset metodology (2)
+                        presetSaverTwo.saveAndUpload();
                     }
                 });
             
@@ -110,7 +110,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-                        // TODO: save preset metodology (3)
+                        presetSaverThree.saveAndUpload();
                     }
                 });
             
@@ -121,7 +121,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-                        // TODO: save preset metodology (4)
+                        presetSaverFour.saveAndUpload();
                     }
                 });
             
@@ -132,7 +132,7 @@ public class SettingsWindow {
                 .activateBy(ControlP5.RELEASE)
                 .onPress(new CallbackListener() {
                     public void controlEvent(CallbackEvent callbackEvent) {
-                        // TODO: save preset metodology (5)
+                        presetSaverFive.saveAndUpload();
                     }
                 });
         /**/
@@ -234,6 +234,16 @@ public class SettingsWindow {
             }
             
         }
+    }
+
+    public void updateSettings() {
+        colorPickerPrimary.updateColor(rgbToHsb(settings.getColor(1)[0], settings.getColor(1)[1], settings.getColor(1)[2], 255));
+        this.cp5.getController("sensPrimary").setValue(settings.getSensitivityPrimary());
+        this.cp5.getController("changeAnimationPrimary").setValue(settings.getModelPrimary());
+
+        colorPickerSecondary.updateColor(rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
+        this.cp5.getController("sensSecondary").setValue(settings.getSensitivitySecondary());
+        this.cp5.getController("changeAnimationSecondary").setValue(settings.getModelSecondary());
     }
 
 }
