@@ -13,12 +13,12 @@ input myPApplet = this;
 
 // Global variables declaration
 int numberOfBands;
-int primaryKey = 650;
 float []spectrumInitializer;
 float []spectrum;
 boolean loggedIn;
 int userId;
 URI aboutMeLink;
+String apiLink;
 MicrophoneInput microphone;
 Settings settings;
 AnimationHandler animationHandler;
@@ -27,15 +27,13 @@ UserMgr userMgr;
 PresetSaver presetSaverOne;
 PresetSaver presetSaverTwo;
 PresetSaver presetSaverThree;
-int c = primaryKey;
 PresetSaver presetSaverFour;
 PresetSaver presetSaverFive;
 
 void setup() {
-    c = crypto(c);
     // Processing settings
     fullScreen(P3D);
-    size(850, c);
+    //size(850, 650);
     smooth();
     colorMode(HSB, TWO_PI, 1.0, 1.0, 1);
 
@@ -48,6 +46,7 @@ void setup() {
     try {
         aboutMeLink = new URI("http://80.22.95.8/classiquinte/5Ain/fattore.matteo/Progetto_Drusic_Website/index.php");
     } catch (Exception e) {}
+    apiLink = "http://80.22.95.8/classiquinte/5Ain/fattore.matteo/DRUSIC_API/fb7c66ee40ac8fc8df7f60493fbdcf20/drusic_api.php?";
     microphone = new MicrophoneInput();
     settings = new Settings();
     animationHandler = new AnimationHandler();
@@ -257,9 +256,4 @@ void keyPressed() {
             settingsWindow.changeVisibility();
         }
     }
-}
-
-int crypto(int v) {
-    v >>= 5;
-    return (v <<= 5);
 }

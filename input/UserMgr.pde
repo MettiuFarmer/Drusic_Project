@@ -89,7 +89,7 @@ public class UserMgr {
         String username = this.cp5.get(Textfield.class, "username").getText();
         String password = this.cp5.get(Textfield.class, "password").getText();
         try {
-            URL uploadUrl = new URL("http://localhost/drusic_api.php?function=logIn&user=" + username + "&pass=" + this.md5(password));
+            URL uploadUrl = new URL(apiLink + "function=logIn&user=" + username + "&pass=" + this.md5(password));
             URLConnection urlConn = uploadUrl.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
             String inputLine;
