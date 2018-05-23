@@ -1,262 +1,249 @@
-import javax.swing.*;
+class SettingsWindow {
 
-class SettingWindow {
-  
-  Settings s;
-  PFont font1;
-  PFont font2;
-  PApplet pa;
-  PGraphics pg;
-  ControlP5 cp5;
-  boolean visible;
-  URI aboutMe;
-  Desktop desk;
-  
-  public SettingWindow(Settings s, input pa) throws Exception {
-    this.pa=pa;
-    this.cp5=new ControlP5(pa);
-    this.s=s;
-    this.pg=createGraphics(800, 600); 
-    this.font1=loadFont("LandslideSample-48.vlw");
-    this.font2=loadFont("mimich-48.vlw");
-    this.visible=false;
-    this.aboutMe=new URI("http://80.22.95.8/classiquinte/5Ain/fattore.matteo/Progetto_Drusic_Website/index.php");
-    this.desk=Desktop.getDesktop();
-  }
-  
-  void setWindowComponents() {
-    this.cp5.setVisible(this.visible);
-    pg.beginDraw();
+    private ControlP5 cp5;
+    private PGraphics pg;
+    private CustomColorPicker colorPickerPrimary;
+    private CustomColorPicker colorPickerSecondary;
+    private PFont drusicFont;
+    private Desktop desktop;
+    private boolean settingsWindowVisible;
 
-    this.cp5.addButton("Salva preset 1")
-     .activateBy(ControlP5.RELEASE)
-     .setPosition(400, 20)
-     .onPress(new CallbackListener() { // a callback function that will be called onPress
-      
-      public void controlEvent(CallbackEvent theEvent) {
-        try {
-          p.salvaPreset(1);
-        }catch (IOException e) { e.printStackTrace(); }
-      }
-    });
-
-    this.cp5.addButton("Salva preset 2")
-     .activateBy(ControlP5.RELEASE)
-     .setPosition(480, 20)
-     .onPress(new CallbackListener() { // a callback function that will be called onPress
-      
-      public void controlEvent(CallbackEvent theEvent) {
-        try {
-          p.salvaPreset(2);
-        }catch (IOException e) { e.printStackTrace(); }
-      }
-    });
-
-    this.cp5.addButton("Salva preset 3")
-     .activateBy(ControlP5.RELEASE)
-     .setPosition(560, 20)
-     .onPress(new CallbackListener() { // a callback function that will be called onPress
-      
-      public void controlEvent(CallbackEvent theEvent) {
-        try {
-          p.salvaPreset(3);
-        }catch (IOException e) { e.printStackTrace(); }
-      }
-    });
-
-    this.cp5.addButton("Salva preset 4")
-     .activateBy(ControlP5.RELEASE)
-     .setPosition(440, 50)
-     .onPress(new CallbackListener() { // a callback function that will be called onPress
-      
-      public void controlEvent(CallbackEvent theEvent) {
-        try {
-          p.salvaPreset(4);
-        }catch (IOException e) { e.printStackTrace(); }
-      }
-    });
-
-    this.cp5.addButton("Salva preset 5")
-     .activateBy(ControlP5.RELEASE)
-     .setPosition(520, 50)
-     .onPress(new CallbackListener() { // a callback function that will be called onPress
-      
-      public void controlEvent(CallbackEvent theEvent) {
-        try {
-          p.salvaPreset(5);
-        }catch (IOException e) { e.printStackTrace(); }
-      }
-    });
-    
-    //------------------------Primario-------------------------------------
-    this.cp5.addSlider("Rp")
-     .setRange(0,255)
-     .setValue(this.s.getColore(1)[0])
-     .setPosition(10,170)
-     .setSize(100,10);
-     
-     this.cp5.addSlider("Gp")
-     .setRange(0,255)
-     .setValue(this.s.getColore(1)[1])
-     .setPosition(10,190)
-     .setSize(100,10);
-     
-     this.cp5.addSlider("Bp")
-     .setRange(0,255)
-     .setValue(this.s.getColore(1)[2])
-     .setPosition(10,210)
-     .setSize(100,10);
-     
-     this.cp5.addSlider("Sensp")
-     .setRange(10, 500)
-     .setValue(this.s.getSensivityp())
-     .setPosition(10, 250)
-     .setSize(100, 10);
-     
-     this.cp5.addButton("modelSelectp")
-     .setPosition(10, 270)
-     .activateBy(ControlP5.RELEASE)
-     .setValue(this.s.getModelp())
-      .onPress(new CallbackListener() { // a callback function that will be called onPress
-      public void controlEvent(CallbackEvent theEvent) {
-         int value=(int)theEvent.getController().getValue();
-         value++;
-         
-         if(value==5){
-           value=0;
-         }
-         
-         theEvent.getController().setValue(value);
-      }
-    });
-    //-------------------------Secondario------------------------------------ 
-    
-     this.cp5.addSlider("Rs")
-     .setRange(0,255)
-     .setValue(this.s.getColore(1)[0])
-     .setPosition(410,170)
-     .setSize(100,10);
-     
-     this.cp5.addSlider("Gs")
-     .setRange(0,255)
-     .setValue(this.s.getColore(1)[1])
-     .setPosition(410,190)
-     .setSize(100,10);
-     
-     this.cp5.addSlider("Bs")
-     .setRange(0,255)
-     .setValue(this.s.getColore(1)[2])
-     .setPosition(410,210)
-     .setSize(100,10);
-     
-     this.cp5.addSlider("Senss")
-     .setRange(10, 500)
-     .setValue(this.s.getSensivitys())
-     .setPosition(410, 250)
-     .setSize(100, 10);
-     
-     this.cp5.addButton("modelSelects")
-     .setPosition(410, 270)
-     .activateBy(ControlP5.RELEASE)
-     .setValue(this.s.getModels())
-      .onPress(new CallbackListener() { // a callback function that will be called onPress
-      public void controlEvent(CallbackEvent theEvent) {
-         int value=(int)theEvent.getController().getValue();
-         value++;
-         
-         if(value==5){
-           value=0;
-         }
-         
-         theEvent.getController().setValue(value);
-      }
-    });
-    
-    //------------------------------------------------------------- 
-    
-    
-    
-     pg.endDraw();
-  }
-  
-  public void show(){ 
-    this.cp5.setVisible(this.visible);
-    
-    pg.beginDraw();
-    cursor();
-    
-    this.cp5.setGraphics(pg, width/2-400, height/2-300);
-    noFill();
-    color sfondo=color(192,192,192,100);
-    pg.background(sfondo);
-    
-    pg.stroke(s.getColore(1)[0], s.getColore(1)[1], s.getColore(1)[2]);
-    
-    pg.textFont(this.font1);
-    pg.text("Drusic", 12, 60);
-    
-    rect(width/2-400, height/2-300, 800, 600);
-    
-    this.s.setColore((int)this.cp5.getController("Rp").getValue(), (int)this.cp5.getController("Gp").getValue(), (int)this.cp5.getController("Bp").getValue(), 1);
-    this.s.setColore((int)this.cp5.getController("Rs").getValue(), (int)this.cp5.getController("Gs").getValue(), (int)this.cp5.getController("Bs").getValue(), 2);
-    /*print(this.cp5.getController("Sens").getValue());
-    print("\n");*/
-    this.s.setSensivityp((int)this.cp5.getController("Sensp").getValue());
-    this.s.setSensivitys((int)this.cp5.getController("Senss").getValue());
-    this.s.setModelp((int)this.cp5.getController("modelSelectp").getValue());
-    this.s.setModels((int)this.cp5.getController("modelSelects").getValue());
-    
-    pg.textSize(20);
-    pg.fill(255, 255, 255);
-    pg.text("About Drusic", 10, 580); 
-    
-    if((this.visible==true && mousePressed && mouseX>((width/2)-400)) && mouseX<((width/2)-300) && mouseY<((height/2)+300) && mouseY>((height/2)+250)){
-    
-    if (Desktop.isDesktopSupported()) {
-      try{
-        this.desk.browse(this.aboutMe);
-      }catch(Exception e){
-      }
+    public SettingsWindow() {
+        this.cp5 = new ControlP5(myPApplet);
+        this.pg = createGraphics(850, 650);
+        this.settingsWindowVisible = false;
+        this.drusicFont = loadFont("LandslideSample-48.vlw");
+        this.desktop = Desktop.getDesktop();
+        this.updateMouseStatus();
     }
-    
-    delay(500);
-    
-    }
-    
-    pg.endDraw();
-  }
-  
-  void setVis(boolean a){
-    this.visible=a;
-    if(!a){
-      this.cp5.setVisible(this.visible);
-    }
-  }
-  
-  public void controlEvnt(ControlEvent theEvent) {
-    println(theEvent.getController().getName());
-  }
 
-  public void changeSettings(Settings s2) {
-    this.s.setModelp(s2.getModelp());
-    this.s.setColore(s2.getColore(1)[0], s2.getColore(1)[1], s2.getColore(1)[2], 1);
-    this.s.setColore(s2.getColore(2)[0], s2.getColore(2)[1], s2.getColore(2)[2], 2);
-    this.s.setColore(s2.getColore(3)[0], s2.getColore(3)[1], s2.getColore(3)[2], 3);
-    this.s.setSize(s2.getSizeX(), s2.getSizeY());
-    this.s.setModels(s2.getModels());
-    this.s.setSensivityp(s2.getSensivityp());
-    this.s.setSensivitys(s2.getSensivitys());
+    public void initializeWindowComponents() {
+        this.cp5.setVisible(this.isVisibile());
+        pg.beginDraw();
+        /**/
+            colorPickerPrimary = new CustomColorPicker(width / 2 - 425 + 45,
+                                                       height / 2 - 315 + 120,
+                                                       rgbToHsb(settings.getColor(1)[0], settings.getColor(1)[1], settings.getColor(1)[2], 255));
 
-    this.cp5.getController("modelSelectp").setValue(s2.getModelp());
-    this.cp5.getController("modelSelects").setValue(s2.getModels());
-    this.cp5.getController("Rp").setValue(s2.getColore(1)[0]);
-    this.cp5.getController("Gp").setValue(s2.getColore(1)[1]);
-    this.cp5.getController("Bp").setValue(s2.getColore(1)[2]);
-    this.cp5.getController("Rs").setValue(s2.getColore(2)[0]);
-    this.cp5.getController("Gs").setValue(s2.getColore(2)[1]);
-    this.cp5.getController("Bs").setValue(s2.getColore(2)[2]);
-    this.cp5.getController("Sensp").setValue(s2.getSensivityp());
-    this.cp5.getController("Senss").setValue(s2.getSensivitys());
-  }
+            colorPickerSecondary = new CustomColorPicker(width / 2 + 425 - 285 - 40,
+                                                         height / 2 - 315 + 120,
+                                                         rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
+
+            this.cp5.addSlider("sensPrimary")
+                .setLabel("Sensibilita\'")
+                .setRange(0, 350)
+                .setValue(settings.getSensitivityPrimary())
+                .setPosition(45, 400)
+                .setSize(200, 20);
+            
+            this.cp5.addSlider("sensSecondary")
+                .setLabel("Sensibilita\'")
+                .setRange(0, 350)
+                .setValue(settings.getSensitivitySecondary())
+                .setPosition(525, 400)
+                .setSize(200, 20);
+            
+            this.cp5.addButton("changeAnimationPrimary")
+                .setLabel("Cambia Animazione")
+                .setPosition(45, 450)
+                .setSize(100, 20)
+                .activateBy(ControlP5.RELEASE)
+                .setValue(settings.getModelPrimary())
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        int animationNumberPrimary = (int) callbackEvent.getController().getValue();
+                        animationNumberPrimary++;
+
+                        if (animationNumberPrimary > animationHandler.numberOfAnimations) {
+                            animationNumberPrimary = 0;
+                        }
+
+                        callbackEvent.getController().setValue(animationNumberPrimary);
+                    }
+                });
+            
+            this.cp5.addButton("changeAnimationSecondary")
+                .setLabel("Cambia Animazione")
+                .setPosition(525, 450)
+                .setSize(100, 20)
+                .activateBy(ControlP5.RELEASE)
+                .setValue(settings.getModelSecondary())
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        int animationNumberSecondary = (int) callbackEvent.getController().getValue();
+                        animationNumberSecondary++;
+
+                        if (animationNumberSecondary > animationHandler.numberOfAnimations) {
+                            animationNumberSecondary = 0;
+                        }
+
+                        callbackEvent.getController().setValue(animationNumberSecondary);
+                    }
+                });
+            
+            this.cp5.addButton("savePreset1")
+                .setPosition(45, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 1")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        presetSaverOne.saveAndUpload();
+                    }
+                });
+            
+            this.cp5.addButton("savePreset2")
+                .setPosition(160, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 2")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        presetSaverTwo.saveAndUpload();
+                    }
+                });
+            
+            this.cp5.addButton("savePreset3")
+                .setPosition(275, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 3")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        presetSaverThree.saveAndUpload();
+                    }
+                });
+            
+            this.cp5.addButton("savePreset4")
+                .setPosition(390, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 4")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        presetSaverFour.saveAndUpload();
+                    }
+                });
+            
+            this.cp5.addButton("savePreset5")
+                .setPosition(505, 550)
+                .setSize(100, 20)
+                .setLabel("Salva Preset 5")
+                .activateBy(ControlP5.RELEASE)
+                .onPress(new CallbackListener() {
+                    public void controlEvent(CallbackEvent callbackEvent) {
+                        presetSaverFive.saveAndUpload();
+                    }
+                });
+        /**/
+        pg.endDraw();
+    }
+
+    public void changeVisibility() {
+        this.settingsWindowVisible = !this.settingsWindowVisible;
+        this.cp5.setVisible(this.isVisibile());
+        this.updateMouseStatus();
+    }
+
+    public boolean isVisibile() {
+        return this.settingsWindowVisible;
+    }
+
+    public void updateMouseStatus() {
+        if (this.isVisibile()) {
+            cursor();
+        } else {
+            noCursor();
+        }
+    }
+
+    public void showWindow() {
+        this.cp5.setVisible(this.isVisibile());
+        pg.beginDraw();
+        /**/
+            this.cp5.setGraphics(pg, width / 2 - 425, height / 2 - 325);
+            noFill();
+            
+            //this.pg.background(rgbToHsb(181, 181, 181, 60));
+            this.pg.background(rgbToHsb(117, 117, 117, 34));
+            
+            fill(rgbToHsb(191, 191, 191, 100));
+            stroke(rgbToHsb(settings.getColor(1)[0],
+                                    settings.getColor(1)[1],
+                                    settings.getColor(1)[2], 255));
+            rect(width / 2 - 425, height / 2 - 325, 850, 650);
+
+            pg.textFont(this.drusicFont);
+            pg.text("Drusic", 12, 60);
+
+            pg.textSize(20);
+            pg.text("Disegno Principale", 32 + 25, 105);
+            pg.text("Disegno Secondario", 32 + 425 + 80, 105);
+
+            pg.text("About Drusic", 725, 620);
+            
+            colorPickerPrimary.display();
+            colorPickerPrimary.update();
+            colorPickerSecondary.display();
+            colorPickerSecondary.update();
+        /**/
+        pg.endDraw();
+
+        updateColors();
+        updateSensibilities();
+        updateAnimationNumbers();
+        checkForAboutPress();
+    }
+
+    private void updateColors() {
+        int []primaryColor = hsbToRgb(hue(colorPickerPrimary.activeColor),
+                                      saturation(colorPickerPrimary.activeColor),
+                                      brightness(colorPickerPrimary.activeColor));
+        settings.changeColor(primaryColor[0], primaryColor[1], primaryColor[2], 1);
+
+        int []secondaryColor = hsbToRgb(hue(colorPickerSecondary.activeColor),
+                                        saturation(colorPickerSecondary.activeColor),
+                                        brightness(colorPickerSecondary.activeColor));
+        settings.changeColor(secondaryColor[0], secondaryColor[1], secondaryColor[2], 2);
+    }
+
+    private void updateSensibilities() {
+        settings.setSensitivityPrimary(this.cp5.getController("sensPrimary").getValue());
+        settings.setSensitivitySecondary(this.cp5.getController("sensSecondary").getValue());
+    }
+
+    private void updateAnimationNumbers() {
+        settings.setModelPrimary((int) this.cp5.getController("changeAnimationPrimary").getValue());
+        settings.setModelSecondary((int) this.cp5.getController("changeAnimationSecondary").getValue());
+    }
+
+    private void checkForAboutPress() {
+        if (mousePressed) {
+            // fill(rgbToHsb(255, 0, 0, 255)); noStroke();
+            // rect(width / 2 + 425 - 130, height / 2 + 325 - 55, 110, 40);
+            if (mouseX > width / 2 + 425 - 130 && mouseX < width / 2 + 425 - 130 + 110) {
+                if (mouseY > height / 2 + 325 - 55 && mouseY < height / 2 + 325 - 55 + 40) {
+                    // fill(rgbToHsb(0, 255, 0, 255)); noStroke();
+                    // rect(width / 2 + 425 - 130, height / 2 + 325 - 55, 110, 40);
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            this.desktop.browse(aboutMeLink);
+                        } catch (Exception e) {}
+                    }
+                }
+            }
+            
+        }
+    }
+
+    public void updateSettings() {
+        colorPickerPrimary.updateColor(rgbToHsb(settings.getColor(1)[0], settings.getColor(1)[1], settings.getColor(1)[2], 255));
+        this.cp5.getController("sensPrimary").setValue(settings.getSensitivityPrimary());
+        this.cp5.getController("changeAnimationPrimary").setValue(settings.getModelPrimary());
+
+        colorPickerSecondary.updateColor(rgbToHsb(settings.getColor(2)[0], settings.getColor(2)[1], settings.getColor(2)[2], 255));
+        this.cp5.getController("sensSecondary").setValue(settings.getSensitivitySecondary());
+        this.cp5.getController("changeAnimationSecondary").setValue(settings.getModelSecondary());
+    }
 
 }
